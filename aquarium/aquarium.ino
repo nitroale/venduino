@@ -1,5 +1,7 @@
 
 
+
+
 /*
  
  Aquarium controler
@@ -32,7 +34,8 @@ THE SOFTWARE.
 #include <Wire.h> // include the I2C library
 #include <RTClib.h> // From: https://github.com/adafruit/RTClib.git 573581794b73dc70bccc659df9d54a9f599f4260
 #include <EEPROM.h> // Fro read and write EEPROM
-
+#include <DHT.h>
+DHT dht;
 // include the library code:
 #include <LiquidCrystal.h>
 
@@ -67,13 +70,15 @@ byte down[8] = {
 
 // For Temperature sensor TMP36 on A0
 // Change values depending on your real measurements
-#define aref_voltage 4.91 // real voltage
-#define amplifier 3.58    // 3.27 -> amplifier = (R8+R10)/R8 = (220+500)/220, exact=(216+558)/216=3.58
+//#define aref_voltage 4.91 // real voltage
+//#define amplifier 3.27    // 3.27 -> amplifier = (R8+R10)/R8 = (220+500)/220, exact=(216+558)/216=3.58
 
+
+
+//const float baselineTemp = 20.0;
 const int sensorPin = A0;
-const float baselineTemp = 20.0;
 
-float temperatureC;
+
 
 // For Averaging
 // Define the number of samples to keep track of.  The higher the number,
@@ -123,7 +128,7 @@ const byte cols = 16, lines = 2;
 
 // menu of status
 const int menumin = 0;
-const int menumax = 5;
+const int menumax = 6;
 
 char* menu_entry[] = {
   "1. Set Date/Time",
@@ -131,7 +136,8 @@ char* menu_entry[] = {
   "3. Light 2 setup",
   "4. Switch 1 set ",
   "5. Switch 2 set ",
-  "6. Menu entry 6 "
+  "6. Menu entry 6 ",
+   "7. Menu vuoto 7 "
 };
 
 // status of programm
@@ -192,7 +198,9 @@ void setup()
 {
   Serial.begin(57600);
   Serial.println("Welcome to Aquarium Controler");
-
+  dht.setup(A0); // sostituito sensorpin
+  delay(dht.getMinimumSamplingPeriod()); // nostro
+  pinMode(sensorPin, INPUT);
   // Configures RTC
   Wire.begin(); // initalise I2C interface  
   
@@ -203,7 +211,7 @@ void setup()
   }
 
   // If you want to set the aref to something other than 5v
-  analogReference(EXTERNAL);
+  //analogReference(EXTERNAL);
 
   // Configures display
   // set up the number of columns and rows on the LCD 
@@ -218,11 +226,13 @@ void setup()
   // line 1 is the second row, since counting begins with 0
   lcd.setCursor(0, 1);
   // print to the second line
-  lcd.print("RTC DS1307");
+  lcd.print("Ciaooo!");
+  delay(2000);
   
   // trys to read EEPROM
   if(AQ_SIG1 != EEPROM.read(0) || AQ_SIG2 != EEPROM.read(1)) {
     lcd.print(" NOT SET");
+    delay(2000);
     EEPROM.write(0, AQ_SIG1);
     EEPROM.write(1, AQ_SIG2);
     
@@ -282,7 +292,7 @@ void loop()
       previousCalculationMillis = currentMillis;  
   
       // does interval calculations
-      calculations();
+      //calculations();
   }
   if(status == ST_DISPLAY) {
     // only once an interval
@@ -430,11 +440,12 @@ int read_button_blocking()
 /*
 ** does interval calculations
 */
+
 void calculations()
 {
   int h, m;
 //  Serial.println("calculations");
-
+/*
   // getting the voltage reading from the temperature sensor
   // subtract the last reading:
   total= total - readings[index];        
@@ -462,18 +473,18 @@ void calculations()
     //Serial.print(average); Serial.println(" average");
   
     // converting that reading to voltage
-    float voltage = average * aref_voltage/amplifier;
-    voltage /= 1024.0;
+    //float voltage = average * aref_voltage/amplifier;
+    //voltage /= 1024.0;
     // print out the voltage
     //Serial.print(voltage, 4); Serial.println(" volts");
     // now print out the temperature
-    temperatureC = (voltage - 0.5) * 100 ; //converting from 10 mv per degree wit 500 mV offset
+    //temperatureC = (voltage - 0.5) * 100 ; //converting from 10 mv per degree wit 500 mV offset
     //Serial.print(temperatureC); Serial.println(" degrees C");
   }
   else {
     //Serial.print(index); Serial.println(" averaging");
   }  
-
+*/
   // read the date  
   now = RTC.now();
   h = now.hour();
@@ -982,6 +993,10 @@ void read_eeprom(byte place)
 // this displays the data on the screen: this function has to be rewritten and the call also. Do not need to redisplay everithing each second
 void display_data()
 {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("19/08/14");
+  /*
   // Prints RTC Time on RTC
   now = RTC.now();
   
@@ -1007,26 +1022,29 @@ void display_data()
   print2dec(now.minute());
   lcd.print(':');
   print2dec(now.second());
-
+  */
   lcd.print(' ');
   // Prints statuses
   for(byte i = 0; i < NBSETS; i++) {
     display_out(i);
   }
   
+  
   // displays temperature
   lcd.setCursor(12,0);
-
+  float temperature = dht.getTemperature();
+  lcd.print(temperature);
   // Now prints on LCD
+  /*
   if(full) {
-    lcd.print((int)temperatureC);
+    lcd.print((int)temperature);
     lcd.print('.');
-    lcd.print((int)((temperatureC+0.05-(int)temperatureC)*10.0));
+    lcd.print((int)((temperature+0.05-(int)temperature)*10.0));
   }
   else {
     lcd.print(index); lcd.print("Avr");
   }
-
+  */
 }
 
 void display_out(byte i)
