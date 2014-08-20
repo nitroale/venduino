@@ -148,7 +148,7 @@ int status = ST_DISPLAY;
 /*
  * function prototypes
  */
-void set_function(byte lnb, byte wpower=1);
+void set_function(byte lnb, byte wpower=1, byte wtemp=2);
 
 /*
  * Define the devices
@@ -165,6 +165,7 @@ struct AQTIME {
   byte h2;
   byte m2;
   byte power;
+  byte temp;
 };
 
 // number of setups in memory
@@ -180,7 +181,7 @@ byte out[NBSETS];
 byte out_m[NBSETS];
 
 // for nice transition
-const unsigned long transitionDuration = 10000;
+const unsigned long transitionDuration = 0000;
 unsigned int transitionSteps;
 byte asked_l[NBSETS]; // new asked level
 byte last_l[NBSETS];  // last asked level
@@ -227,7 +228,7 @@ void setup()
   lcd.setCursor(0, 1);
   // print to the second line
   lcd.print("Ciaooo!");
-  delay(2000);
+  delay(1000);
   
   // trys to read EEPROM
   if(AQ_SIG1 != EEPROM.read(0) || AQ_SIG2 != EEPROM.read(1)) {
@@ -292,7 +293,7 @@ void loop()
       previousCalculationMillis = currentMillis;  
   
       // does interval calculations
-      //calculations();
+      calculations();
   }
   if(status == ST_DISPLAY) {
     // only once an interval
@@ -353,12 +354,12 @@ void switch_out(byte n)
       out_m[n] = AUTO;
       break;
     case AUTO:
-      out_m[n] = ON;
+      out_m[n] = ON; // 1
       break;
-    case ON:
+    /*case ON:
       out_m[n] = MAX;
-      break;
-    case MAX:
+      break;*/
+    case ON:
       out_m[n] = OFF;
       break;
   }
@@ -502,8 +503,8 @@ void calculations()
       out_s = OFF;
     else if(out_m[li] == ON)
       out_s = ON;
-    else if(out_m[li] == MAX)
-      out_s = MAX;
+    // else if(out_m[li] == MAX)
+    //  out_s = MAX;
     else {
       // checking if we are in the ON time period
       byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
@@ -521,10 +522,10 @@ void calculations()
         case OFF:
           asked_l[li] = 0;
           break;
-        case ON:
+        /*case ON:
           asked_l[li] = ti[li].power*255/99;
-          break;
-        case MAX:
+          break;*/
+        case ON:
           asked_l[li] = 255;
           break;
       }
@@ -641,6 +642,12 @@ void do_menu_entry(int en)
        break;
      case 4:
        set_function(4, 0);
+       break;
+       case 5:
+       set_function(5, 0);
+       break;
+       case 6:
+       set_function(6, 0);
        break;
   }
 }
@@ -809,17 +816,17 @@ void set_time()
 /*
 ** setting a entry in the menu
 */
-void set_function(byte lnb, byte wpower)
+void set_function(byte lnb, byte wpower, byte wtemp)
 {
   int place, eelocate;
   int pressed_bt = -1;
   int pos = 0, v;
   char val[16];
-  byte h1, m1, h2, m2, power;
+  byte h1, m1, h2, m2, power, temp;
   int i;
   int ok = 0;
   place = lnb - 1;
-  eelocate = 2+place*5;
+  eelocate = 2+place*6;
 
   Serial.print("do set light---------------- Number: ");
   Serial.print(lnb);
@@ -830,10 +837,11 @@ void set_function(byte lnb, byte wpower)
   // make sure we are up tu date from EEPROM
   read_eeprom(place);
   h1 = ti[place].h1;   
-  m1 = ti[place].m2;   
+  m1 = ti[place].m1;   
   h2 = ti[place].h2;   
   m2 = ti[place].m2;   
-  power = ti[place].power;   
+  power = ti[place].power;
+  temp = ti[place].temp;
 
   /*
   ** 0123456789012345
@@ -856,7 +864,7 @@ void set_function(byte lnb, byte wpower)
   val[12] = (wpower) ? power/10+'0' : ' ';
   val[13] = (wpower) ? power%10+'0' : ' ';
   val[14] = ' ';
-  val[15] = ' ';
+  val[15] = temp;
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -901,6 +909,9 @@ void set_function(byte lnb, byte wpower)
               case 13:
                 pos = 12;
                 break;
+               case 15:
+                 pos = 13;
+                 break;
           }
           break;
         case BT_RIGHT:
@@ -932,6 +943,9 @@ void set_function(byte lnb, byte wpower)
               case 12:
                 pos = (wpower) ? 13 : 10;
                 break;
+              case 13:
+                pos = 15;
+                break;
           }
           break;
        case BT_UP:
@@ -956,37 +970,42 @@ void set_function(byte lnb, byte wpower)
     h2 = (val[6]-'0')*10+val[7]-'0';
     m2 = (val[9]-'0')*10+val[10]-'0';
     power = (wpower) ? (val[12]-'0')*10+val[13]-'0' : 0;
+    temp = wtemp;
 
     if(h1 >= 0 && h1 < 24
       && m1 >= 0 && m1 < 60
       && h2 >= 0 && h2 < 24
       && m2 >= 0 && m2 < 60
-      && power >= 0 && power <= 99)
+      && power >= 0 && power <= 99
+      && temp >= 0 && temp <= 99)
               ok = 1;
   } while(!ok);  
   ti[place].h1 = h1;   
   ti[place].m1 = m1;   
   ti[place].h2 = h2;   
   ti[place].m2 = m2;   
-  ti[place].power = power;   
+  ti[place].power = power;
+  ti[place].temp = temp;  
 
   EEPROM.write(eelocate++, h1); // H1  
   EEPROM.write(eelocate++, m1); // M1  
   EEPROM.write(eelocate++, h2); // H2  
   EEPROM.write(eelocate++, m2); // M2  
-  EEPROM.write(eelocate, power); // P1  
+  EEPROM.write(eelocate, power); // P1
+  EEPROM.write(eelocate, temp);  
 }
 
 // reads data from EEPROM
 void read_eeprom(byte place)
 {
   int eelocate;
-  eelocate = 2+place*5;
+  eelocate = 2+place*6;
   ti[place].h1 = EEPROM.read(eelocate++);   
   ti[place].m1 = EEPROM.read(eelocate++);   
   ti[place].h2 = EEPROM.read(eelocate++);   
   ti[place].m2 = EEPROM.read(eelocate++);   
-  ti[place].power = EEPROM.read(eelocate);   
+  ti[place].power = EEPROM.read(eelocate);
+  ti[place].temp = EEPROM.read(eelocate);  
 
 }
 
@@ -995,7 +1014,8 @@ void display_data()
 {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("19/08/14");
+  lcd.print("20/08/14");
+  lcd.print(" 17:43");
   /*
   // Prints RTC Time on RTC
   now = RTC.now();
@@ -1031,9 +1051,13 @@ void display_data()
   
   
   // displays temperature
-  lcd.setCursor(12,0);
-  float temperature = dht.getTemperature();
+  lcd.setCursor(0,1);
+  int temperature = dht.getTemperature();
+  int humidity = dht.getHumidity();
+  lcd.print("T:");
   lcd.print(temperature);
+  lcd.print(" U:");
+  lcd.print(humidity);
   // Now prints on LCD
   /*
   if(full) {
