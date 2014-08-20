@@ -865,7 +865,7 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   val[13] = (wpower) ? power%10+'0' : ' ';
   val[14] = ' ';
   //val[14] =  temp/10+'0';
-  val[15] = '6';
+  val[15] = (wtemp) ? temp%10 + '0' : ' ';
   
   lcd.clear();
   lcd.setCursor(0, 0);
