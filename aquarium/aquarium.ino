@@ -864,7 +864,8 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   val[12] = (wpower) ? power/10+'0' : ' ';
   val[13] = (wpower) ? power%10+'0' : ' ';
   val[14] = ' ';
-  val[15] = temp;
+  //val[14] =  temp/10+'0';
+  val[15] = '6';
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -991,8 +992,8 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   EEPROM.write(eelocate++, m1); // M1  
   EEPROM.write(eelocate++, h2); // H2  
   EEPROM.write(eelocate++, m2); // M2  
-  EEPROM.write(eelocate, power); // P1
-  EEPROM.write(eelocate, temp);  
+  EEPROM.write(eelocate++, power); // P1
+  EEPROM.write(eelocate++, temp);  
 }
 
 // reads data from EEPROM
@@ -1004,8 +1005,8 @@ void read_eeprom(byte place)
   ti[place].m1 = EEPROM.read(eelocate++);   
   ti[place].h2 = EEPROM.read(eelocate++);   
   ti[place].m2 = EEPROM.read(eelocate++);   
-  ti[place].power = EEPROM.read(eelocate);
-  ti[place].temp = EEPROM.read(eelocate);  
+  ti[place].power = EEPROM.read(eelocate++);
+  ti[place].temp = EEPROM.read(eelocate++);  
 
 }
 
