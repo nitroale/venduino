@@ -144,7 +144,7 @@ int status = ST_DISPLAY;
 /*
  * function prototypes
  */
-void set_function(byte lnb, byte wpower=1, byte wtemp=2);
+void set_function(byte lnb, byte wpower=1/*, byte wtemp=2*/);
 
 /*
  * Define the devices
@@ -161,7 +161,7 @@ struct AQTIME {
   byte h2;
   byte m2;
   byte power;
-  byte temp;
+  //byte temp;
 };
 
 // number of setups in memory
@@ -812,17 +812,17 @@ void set_time()
 /*
 ** setting a entry in the menu
 */
-void set_function(byte lnb, byte wpower, byte wtemp)
+void set_function(byte lnb, byte wpower/*, byte wtemp*/)
 {
   int place, eelocate;
   int pressed_bt = -1;
   int pos = 0, v;
   char val[16];
-  byte h1, m1, h2, m2, power, temp;
+  byte h1, m1, h2, m2, power, /*temp*/;
   int i;
   int ok = 0;
   place = lnb - 1;
-  eelocate = 2+place*6;
+  eelocate = 2+place*5;
 
   Serial.print("do set light---------------- Number: ");
   Serial.print(lnb);
@@ -1014,7 +1014,7 @@ void display_data()
   lcd.setCursor(0,0);
   lcd.print("21/08/14");
   lcd.print(" 17:43");
-  lcd.print(power);
+
   /*
   // Prints RTC Time on RTC
   now = RTC.now();
