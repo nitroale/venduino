@@ -1,7 +1,3 @@
-
-
-
-
 /*
  
  Aquarium controler
@@ -131,13 +127,13 @@ const int menumin = 0;
 const int menumax = 6;
 
 char* menu_entry[] = {
-  "1. Set Date/Time",
+  "1. Set Data/Ora",
   "2. Light 1 setup",
   "3. Light 2 setup",
   "4. Switch 1 set ",
   "5. Switch 2 set ",
   "6. Menu entry 6 ",
-   "7. Menu vuoto 7 "
+  "7. Menu vuoto 7 "
 };
 
 // status of programm
@@ -199,11 +195,11 @@ void setup()
 {
   Serial.begin(57600);
   Serial.println("Welcome to Aquarium Controler");
-  dht.setup(A0); // sostituito sensorpin
-  delay(dht.getMinimumSamplingPeriod()); // nostro
+  dht.setup(A0);                          // sostituito sensorpin
+  delay(dht.getMinimumSamplingPeriod());  // nostro
   pinMode(sensorPin, INPUT);
   // Configures RTC
-  Wire.begin(); // initalise I2C interface  
+  Wire.begin();                           // initalise I2C interface  
   
   if (! RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
@@ -222,12 +218,12 @@ void setup()
   lcd.begin(cols, lines);
   
   // Print a message to the LCD.
-  lcd.print("Hello you!!!");
+  lcd.print("Reptile");
   // set the cursor to column 0, line 1
   // line 1 is the second row, since counting begins with 0
   lcd.setCursor(0, 1);
   // print to the second line
-  lcd.print("Ciaooo!");
+  lcd.print("Controller");
   delay(1000);
   
   // trys to read EEPROM
@@ -254,12 +250,12 @@ void setup()
   pinMode(Switch_2, OUTPUT);
   pinMode(Light_1, OUTPUT);
   pinMode(Light_2, OUTPUT);
-  pinMode(Status_Led, OUTPUT);
-  // Set initial state
+  pinMode(Status_Led, OUTPUT); // al momento scollegato
+  // Set initial state, tutto spento tranne status led
   digitalWrite(Switch_1, LOW);
   digitalWrite(Switch_2, LOW);
-  analogWrite(Light_1, 0); // Turn off light 1
-  analogWrite(Light_2, 0); // Turn off light 2
+  analogWrite(Light_1, 0);    // Turn off light 1
+  analogWrite(Light_2, 0);    // Turn off light 2
   digitalWrite(Status_Led, HIGH);
   out[0] = Light_1;
   out[1] = Light_2;
@@ -284,7 +280,7 @@ void loop()
   int pressed_bt;
 
 //  Serial.println("loop");
-  
+ Serial.println(power);
   // For interval determination
   unsigned long currentMillis = millis();
 
@@ -865,13 +861,13 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   val[13] = (wpower) ? power%10+'0' : ' ';
   val[14] = ' ';
   //val[14] =  temp/10+'0';
-  val[15] = (wtemp) ? temp%10 + '0' : ' ';
+  val[15] = ' ';
   
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.write("Start Stop");
   if(wpower)
-    lcd.write(" POW");
+    lcd.write(" TMP");
 
   lcd.setCursor(0, 1);
   for(i = 0; i < 16; i++)
