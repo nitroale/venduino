@@ -154,7 +154,7 @@ void set_function(byte lnb, byte wpower=1/*, byte wtemp=2*/);
 #define Switch_1 9
 #define Switch_2 8
 #define Status_Led 7
-
+#define Test_Led 6
 struct AQTIME {
   byte h1;
   byte m1;
@@ -251,6 +251,7 @@ void setup()
   pinMode(Light_1, OUTPUT);
   pinMode(Light_2, OUTPUT);
   pinMode(Status_Led, OUTPUT); // al momento scollegato
+  pinMode(Test_Led, OUTPUT); 
   // Set initial state, tutto spento tranne status led
   digitalWrite(Switch_1, LOW);
   digitalWrite(Switch_2, LOW);
@@ -1055,9 +1056,9 @@ void display_data()
   int temperature = dht.getTemperature();
   int delta = temperature - ti[1].power;
   if (delta => 1) {
-    digitalWrite(8, HIGH);
+    digitalWrite(6, HIGH);
   } else {
-    digitalWrite(8, LOW);
+    digitalWrite(6, LOW);
   }
   int humidity = dht.getHumidity();
   lcd.print("T:");
