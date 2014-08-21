@@ -818,7 +818,7 @@ void set_function(byte lnb, byte wpower/*, byte wtemp*/)
   int pressed_bt = -1;
   int pos = 0, v;
   char val[16];
-  byte h1, m1, h2, m2, power, /*temp*/;
+  byte h1, m1, h2, m2, power /*temp*/;
   int i;
   int ok = 0;
   place = lnb - 1;
@@ -1014,7 +1014,7 @@ void display_data()
   lcd.setCursor(0,0);
   lcd.print("21/08/14");
   lcd.print(" 17:43");
-
+  lcd.print(ti[1].power);
   /*
   // Prints RTC Time on RTC
   now = RTC.now();
