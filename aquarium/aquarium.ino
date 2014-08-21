@@ -280,7 +280,7 @@ void loop()
   int pressed_bt;
 
 //  Serial.println("loop");
- Serial.println(power);
+ 
   // For interval determination
   unsigned long currentMillis = millis();
 
@@ -837,7 +837,7 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   h2 = ti[place].h2;   
   m2 = ti[place].m2;   
   power = ti[place].power;
-  temp = ti[place].temp;
+  //temp = ti[place].temp;
 
   /*
   ** 0123456789012345
@@ -865,7 +865,7 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.write("Start Stop");
+  lcd.write("Start Stop ");
   if(wpower)
     lcd.write(" TMP");
 
@@ -967,14 +967,15 @@ void set_function(byte lnb, byte wpower, byte wtemp)
     h2 = (val[6]-'0')*10+val[7]-'0';
     m2 = (val[9]-'0')*10+val[10]-'0';
     power = (wpower) ? (val[12]-'0')*10+val[13]-'0' : 0;
-    temp = wtemp;
+    //temp = wtemp;
 
     if(h1 >= 0 && h1 < 24
       && m1 >= 0 && m1 < 60
       && h2 >= 0 && h2 < 24
       && m2 >= 0 && m2 < 60
       && power >= 0 && power <= 99
-      && temp >= 0 && temp <= 99)
+      //&& temp >= 0 && temp <= 99
+      )
               ok = 1;
   } while(!ok);  
   ti[place].h1 = h1;   
@@ -982,27 +983,27 @@ void set_function(byte lnb, byte wpower, byte wtemp)
   ti[place].h2 = h2;   
   ti[place].m2 = m2;   
   ti[place].power = power;
-  ti[place].temp = temp;  
+  //ti[place].temp = temp;  
 
   EEPROM.write(eelocate++, h1); // H1  
   EEPROM.write(eelocate++, m1); // M1  
   EEPROM.write(eelocate++, h2); // H2  
   EEPROM.write(eelocate++, m2); // M2  
   EEPROM.write(eelocate++, power); // P1
-  EEPROM.write(eelocate++, temp);  
+  //EEPROM.write(eelocate++, temp);  
 }
 
 // reads data from EEPROM
 void read_eeprom(byte place)
 {
   int eelocate;
-  eelocate = 2+place*6;
+  eelocate = 2+place*5;
   ti[place].h1 = EEPROM.read(eelocate++);   
   ti[place].m1 = EEPROM.read(eelocate++);   
   ti[place].h2 = EEPROM.read(eelocate++);   
   ti[place].m2 = EEPROM.read(eelocate++);   
   ti[place].power = EEPROM.read(eelocate++);
-  ti[place].temp = EEPROM.read(eelocate++);  
+  //ti[place].temp = EEPROM.read(eelocate++);  
 
 }
 
@@ -1011,8 +1012,9 @@ void display_data()
 {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("20/08/14");
+  lcd.print("21/08/14");
   lcd.print(" 17:43");
+  lcd.print(power);
   /*
   // Prints RTC Time on RTC
   now = RTC.now();
