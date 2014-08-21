@@ -443,8 +443,8 @@ int read_button_blocking()
 void calculations()
 {
   int h, m;
-//  Serial.println("calculations");
-/*
+  Serial.println("calculations");
+
   // getting the voltage reading from the temperature sensor
   // subtract the last reading:
   total= total - readings[index];        
@@ -483,7 +483,7 @@ void calculations()
   else {
     //Serial.print(index); Serial.println(" averaging");
   }  
-*/
+
   // read the date  
   now = RTC.now();
   h = now.hour();
@@ -1055,7 +1055,7 @@ void display_data()
   lcd.setCursor(0,1);
   int temperature = dht.getTemperature();
   int delta = temperature - ti[1].power;
-  if (delta => 1) {
+  if (delta >= 1) {
     digitalWrite(6, HIGH);
   } else {
     digitalWrite(6, LOW);
