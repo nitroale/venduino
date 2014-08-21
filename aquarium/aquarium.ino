@@ -303,6 +303,7 @@ void loop()
       display_data();
     } 
   }
+  
 
   pressed_bt = read_button();
 
@@ -1052,6 +1053,12 @@ void display_data()
   // displays temperature
   lcd.setCursor(0,1);
   int temperature = dht.getTemperature();
+  int delta = temperature - ti[1].power;
+  if (delta => 1) {
+    digitalWrite(8, HIGH);
+  } else {
+    digitalWrite(8, LOW);
+  }
   int humidity = dht.getHumidity();
   lcd.print("T:");
   lcd.print(temperature);
