@@ -81,13 +81,13 @@ const int sensorPin = A0;
 // the more the readings will be smoothed, but the slower the output will
 // respond to the input.  Using a constant rather than a normal variable lets
 // use this value to determine the size of the readings array.
-#define numReadings 10
+/*#define numReadings 1
 int readings[numReadings];      // the readings from the analog input
 int index = 0;                  // the index of the current reading
 int total = 0;                  // the running total
 int average = 0;                // the average
 int full = 0;                   // boolean in order to know if we have enoungh measurements
-
+*/
 // For buttons
 const int buttonsPin = A1;
 int bstate = 1024, blast = 1024;  // button state and button last state
@@ -114,7 +114,7 @@ const int buttonNONE = 900;   // reading should be 1023
 
 // For looping display by interval
 unsigned long previousDisplayMillis = 0; 
-unsigned long displayInterval = 1000;
+unsigned long displayInterval = 10000; 
 // For looping calculation by interval
 unsigned long previousCalculationMillis = 0; 
 unsigned long calculationInterval = 250;
@@ -128,7 +128,7 @@ const int menumax = 6;
 
 char* menu_entry[] = {
   "1. Set Data/Ora",
-  "2. Light 1 setup",
+  "2. Led test setup",
   "3. Light 2 setup",
   "4. Switch 1 set ",
   "5. Switch 2 set ",
@@ -144,7 +144,7 @@ int status = ST_DISPLAY;
 /*
  * function prototypes
  */
-void set_function(byte lnb, byte wpower=1/*, byte wtemp=2*/);
+void set_function(byte lnb, byte wpower=1);
 
 /*
  * Define the devices
@@ -173,7 +173,7 @@ byte out[NBSETS];
 #define OFF 0
 #define AUTO 1
 #define ON 2
-#define MAX 3
+//#define MAX 3
 byte out_m[NBSETS];
 
 // for nice transition
@@ -224,7 +224,7 @@ void setup()
   lcd.setCursor(0, 1);
   // print to the second line
   lcd.print("Controller");
-  delay(1000);
+  delay(800);
   
   // trys to read EEPROM
   if(AQ_SIG1 != EEPROM.read(0) || AQ_SIG2 != EEPROM.read(1)) {
@@ -264,13 +264,13 @@ void setup()
   out[3] = Switch_2;
   for(int i = 0; i < NBSETS; i++) {
     out_m[i] = AUTO;
-    current_l[NBSETS] = asked_l[NBSETS] = last_l[NBSETS] = 0;  // last asked level and last level
+    //current_l[NBSETS] = asked_l[NBSETS] = last_l[NBSETS] = 0;  // last asked level and last level
   }    
 
   // smooth transition
-  transitionSteps = transitionDuration / calculationInterval;
+  transitionSteps = transitionDuration / calculationInterval *transitionDuration;
   
-  delay(1000);
+  delay(50);
 }
 
 /*
@@ -280,7 +280,7 @@ void loop()
 {
   int pressed_bt;
 
-//  Serial.println("loop");
+
  
   // For interval determination
   unsigned long currentMillis = millis();
@@ -288,24 +288,20 @@ void loop()
   if(currentMillis - previousCalculationMillis > calculationInterval) {
       // save lasted calculation millis
       previousCalculationMillis = currentMillis;  
-  
       // does interval calculations
       calculations();
   }
   if(status == ST_DISPLAY) {
     // only once an interval
     if(currentMillis - previousDisplayMillis > displayInterval) {
-      Serial.println("display interval");
-
+      //Serial.println("display interval");
       // save lasted display millis
       previousDisplayMillis = currentMillis;  
-  
       // display the data on the screen
       display_data();
     } 
   }
   
-
   pressed_bt = read_button();
 
   switch(pressed_bt) {
@@ -443,32 +439,32 @@ int read_button_blocking()
 void calculations()
 {
   int h, m;
-  Serial.println("calculations");
+  //Serial.println("calculations");
 
   // getting the voltage reading from the temperature sensor
   // subtract the last reading:
-  total= total - readings[index];        
+  //total= total - readings[index];        
   // read from the sensor:  
-  delay(100);
-  readings[index] = analogRead(sensorPin);
+  //delay(100);
+  //readings[index] = analogRead(sensorPin);
 //  delay(100);
   //Serial.print(readings[index]); Serial.println(" reading");
   // add the reading to the total:
-  total= total + readings[index];      
+  //total= total + readings[index];      
   // advance to the next position in the array:  
-  index = index + 1;                    
+  //index = index + 1;                    
 
-  if (full == 0 && index == numReadings)
-     full = 1;
+  //if (full == 0 && index == numReadings)
+  //   full = 1;
      
   // if we're at the end of the array...
-  if (index >= numReadings)              
+  //if (index >= numReadings)              
      // ...wrap around to the beginning:
-     index = 0;                          
+   //  index = 0;                          
 
-  if(full) {
+  //if(full) {
     // calculate the average:
-    average = total / numReadings;        
+    //average = total / numReadings;        
     //Serial.print(average); Serial.println(" average");
   
     // converting that reading to voltage
@@ -479,10 +475,10 @@ void calculations()
     // now print out the temperature
     //temperatureC = (voltage - 0.5) * 100 ; //converting from 10 mv per degree wit 500 mV offset
     //Serial.print(temperatureC); Serial.println(" degrees C");
-  }
-  else {
+  //}
+  //else {
     //Serial.print(index); Serial.println(" averaging");
-  }  
+  //}  
 
   // read the date  
   now = RTC.now();
@@ -494,7 +490,7 @@ void calculations()
     Serial.print("Calculation for ");
     Serial.println(li);
 //    Serial.print("Nb of steps:");
-//    Serial.println(transitionSteps);
+   Serial.println(transitionSteps);
 
     byte out_s;
     if(out_m[li] == OFF)
@@ -512,7 +508,7 @@ void calculations()
       else
         out_s = OFF;
     }
-     
+    /* 
     if(li < 2) {
 //      Serial.print("Status = ");
 //      Serial.println(out_s);
@@ -523,45 +519,46 @@ void calculations()
         /*case ON:
           asked_l[li] = ti[li].power*255/99;
           break;*/
-        case ON:
+      /*  case ON:
           asked_l[li] = 255;
           break;
-      }
+      }*/
 //      Serial.print("Asked Level = ");
 //      Serial.print(asked_l[li]);
 //      Serial.print(", Last Level = ");
 //      Serial.print(last_l[li]);
-
+/*
       if(asked_l[li] != last_l[li]) {
         incr_l[li] = ((long)asked_l[li]*256 - current_l[li])/transitionSteps;
         Serial.print("Set Increment To= ");
         Serial.println(incr_l[li]);
         last_l[li] = asked_l[li];
-      }
+      }*/
 //      Serial.print(", Increment = ");
 //      Serial.print(incr_l[li]);
     
 //      Serial.print(", Current Before = ");
 //      Serial.println(current_l[li]);
-      
+      /*
       if(current_l[li] != asked_l[li]) {
         current_l[li] += incr_l[li];
         if(abs(current_l[li] - asked_l[li]*256) < abs(incr_l[li])) {
-//             Serial.println("Last--------------------------------");
+            Serial.println("Last--------------------------------");
              current_l[li] = (unsigned)asked_l[li]*256;          
              incr_l[li] = 0;
         }
-      }
+      }*/
 //      Serial.print(", Current After = ");
 //      Serial.println(current_l[li]);
-      analogWrite(out[li], current_l[li]/256);
-    }
-    else {
+//      analogWrite(out[li], current_l[li]/256);
+//    }
+//    else 
+   // for (li=0; li < 4; li++) {
       if(out_s == OFF)
         digitalWrite(out[li], LOW);
       else
         digitalWrite(out[li], HIGH);
-    }
+    //}
   }
 }
 
@@ -1054,12 +1051,14 @@ void display_data()
   // displays temperature
   lcd.setCursor(0,1);
   int temperature = dht.getTemperature();
-  int delta = temperature - ti[1].power;
-  if (delta >= 1) {
+  // test led 
+  int dif = temperature - ti[0].power;
+  if (dif >= 1) {
     digitalWrite(6, HIGH);
   } else {
     digitalWrite(6, LOW);
   }
+
   int humidity = dht.getHumidity();
   lcd.print("T:");
   lcd.print(temperature);
@@ -1091,9 +1090,10 @@ void display_out(byte i)
     case ON:
       lcd.print('1');
       break;
-    case MAX:
+    /*case MAX:
       lcd.print('M');
       break;
+     */
   }        
 }
 
@@ -1103,3 +1103,4 @@ void print2dec(int nb) { //this adds a 0 before single digit numbers
   }
   lcd.print(nb);
 }
+
