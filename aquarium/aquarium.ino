@@ -114,7 +114,7 @@ const int buttonNONE = 900;   // reading should be 1023
 
 // For looping display by interval
 unsigned long previousDisplayMillis = 0; 
-unsigned long displayInterval = 10000; 
+unsigned long displayInterval = 1000; 
 // For looping calculation by interval
 unsigned long previousCalculationMillis = 0; 
 unsigned long calculationInterval = 250;
@@ -128,8 +128,8 @@ const int menumax = 6;
 
 char* menu_entry[] = {
   "1. Set Data/Ora",
-  "2. Led test setup",
-  "3. Light 2 setup",
+  "2. Temperatura setup",
+  "3. Umidita' setup",
   "4. Switch 1 set ",
   "5. Switch 2 set ",
   "6. Menu entry 6 ",
@@ -153,8 +153,8 @@ void set_function(byte lnb, byte wpower=1);
 #define Light_2 10
 #define Switch_1 9
 #define Switch_2 8
-#define Status_Led 7
-#define Test_Led 6
+#define Humidity_Led 7
+#define Temp_Led 6
 struct AQTIME {
   byte h1;
   byte m1;
@@ -250,14 +250,14 @@ void setup()
   pinMode(Switch_2, OUTPUT);
   pinMode(Light_1, OUTPUT);
   pinMode(Light_2, OUTPUT);
-  pinMode(Status_Led, OUTPUT); // al momento scollegato
-  pinMode(Test_Led, OUTPUT); 
+  pinMode(Humidity_Led, OUTPUT); // al momento scollegato
+  pinMode(Temp_Led, OUTPUT); 
   // Set initial state, tutto spento tranne status led
   digitalWrite(Switch_1, LOW);
   digitalWrite(Switch_2, LOW);
   analogWrite(Light_1, 0);    // Turn off light 1
   analogWrite(Light_2, 0);    // Turn off light 2
-  digitalWrite(Status_Led, HIGH);
+  digitalWrite(Humidity_Led, HIGH);
   out[0] = Light_1;
   out[1] = Light_2;
   out[2] = Switch_1;
@@ -1051,15 +1051,22 @@ void display_data()
   // displays temperature
   lcd.setCursor(0,1);
   int temperature = dht.getTemperature();
+  int humidity = dht.getHumidity();
   // test led 
-  int dif = temperature - ti[0].power;
-  if (dif >= 1) {
+  int deltaT = temperature - ti[0].power;
+  if (deltaT >= 1) {
     digitalWrite(6, HIGH);
   } else {
     digitalWrite(6, LOW);
   }
 
-  int humidity = dht.getHumidity();
+  int deltaU = humidity - ti[1].power;
+  if (deltaU <= 1) {
+    digitalWrite(7, HIGH);
+  } else {
+    digitalWrite(7, LOW);
+  }
+  
   lcd.print("T:");
   lcd.print(temperature);
   lcd.print(" U:");
@@ -1103,4 +1110,6 @@ void print2dec(int nb) { //this adds a 0 before single digit numbers
   }
   lcd.print(nb);
 }
+
+
 
