@@ -69,12 +69,8 @@ byte down[8] = {
 //#define aref_voltage 4.91 // real voltage
 //#define amplifier 3.27    // 3.27 -> amplifier = (R8+R10)/R8 = (220+500)/220, exact=(216+558)/216=3.58
 
-
-
 //const float baselineTemp = 20.0;
 const int sensorPin = A0;
-
-
 
 // For Averaging
 // Define the number of samples to keep track of.  The higher the number,
@@ -177,8 +173,8 @@ byte out[NBSETS];
 byte out_m[NBSETS];
 
 // for nice transition
-const unsigned long transitionDuration = 0000;
-unsigned int transitionSteps;
+//const unsigned long transitionDuration = 0000;
+//unsigned int transitionSteps;
 byte asked_l[NBSETS]; // new asked level
 byte last_l[NBSETS];  // last asked level
 unsigned int current_l[NBSETS]; // current level multiplied by 256 in order to avoid floating calculations
@@ -257,7 +253,7 @@ void setup()
   digitalWrite(Switch_2, LOW);
   analogWrite(Light_1, 0);    // Turn off light 1
   analogWrite(Light_2, 0);    // Turn off light 2
-  digitalWrite(Humidity_Led, HIGH);
+  digitalWrite(Humidity_Led, LOW);
   out[0] = Light_1;
   out[1] = Light_2;
   out[2] = Switch_1;
@@ -268,7 +264,7 @@ void setup()
   }    
 
   // smooth transition
-  transitionSteps = transitionDuration / calculationInterval *transitionDuration;
+  //transitionSteps = transitionDuration / calculationInterval *transitionDuration;
   
   delay(50);
 }
@@ -279,8 +275,6 @@ void setup()
 void loop() 
 {
   int pressed_bt;
-
-
  
   // For interval determination
   unsigned long currentMillis = millis();
@@ -487,12 +481,13 @@ void calculations()
   
   // setting the status of the outputs
   for(int li = 0; li < 4; li++) {
-    Serial.print("Calculation for ");
-    Serial.println(li);
+//    Serial.print("Calculation for ");
+//    Serial.println(li);
 //    Serial.print("Nb of steps:");
-   Serial.println(transitionSteps);
+//   Serial.println(transitionSteps);
 
     byte out_s;
+
     if(out_m[li] == OFF)
       out_s = OFF;
     else if(out_m[li] == ON)
@@ -500,10 +495,13 @@ void calculations()
     // else if(out_m[li] == MAX)
     //  out_s = MAX;
     else {
+      int temperature  = dht.getTemperature();
+
+      if (ti[li].power > temperature) 
       // checking if we are in the ON time period
-      byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
-      if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
-        || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
+      //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
+      //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
+      //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
         out_s = ON;
       else
         out_s = OFF;
@@ -1011,8 +1009,8 @@ void display_data()
 {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("21/08/14");
-  lcd.print(" 17:43");
+  lcd.print("24/08/14");
+  lcd.print(" 21:43");
   lcd.print(ti[1].power);
   /*
   // Prints RTC Time on RTC
@@ -1053,19 +1051,19 @@ void display_data()
   int temperature = dht.getTemperature();
   int humidity = dht.getHumidity();
   // test led 
-  int deltaT = temperature - ti[0].power;
-  if (deltaT >= 1) {
-    digitalWrite(6, HIGH);
-  } else {
-    digitalWrite(6, LOW);
-  }
+  //int deltaT = temperature - ti[0].power;
+  //if (deltaT >= 1) {
+  //  digitalWrite(6, HIGH);
+  //} else {
+  //  digitalWrite(6, LOW);
+  //}
 
-  int deltaU = humidity - ti[1].power;
-  if (deltaU <= 1) {
-    digitalWrite(7, HIGH);
-  } else {
-    digitalWrite(7, LOW);
-  }
+  //int deltaU = humidity - ti[1].power;
+  //if (deltaU <= 1) {
+  //  digitalWrite(7, HIGH);
+  //} else {
+  //  digitalWrite(7, LOW);
+  //}
   
   lcd.print("T:");
   lcd.print(temperature);
