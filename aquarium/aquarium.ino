@@ -123,11 +123,11 @@ const int menumin = 0;
 const int menumax = 6;
 
 char* menu_entry[] = {
-  "1. Set Data/Ora",
-  "2. Temperatura setup",
-  "3. Umidita' setup",
-  "4. Switch 1 set ",
-  "5. Switch 2 set ",
+  "1. Ventole",
+  "2. Serpentina",
+  "3. Umidita' ",
+  "4. Switch 2 set ",
+  "5. Set Data/Ora",
   "6. Menu entry 6 ",
   "7. Menu vuoto 7 "
 };
@@ -149,8 +149,8 @@ void set_function(byte lnb, byte wpower=1);
 #define Light_2 10
 #define Switch_1 9
 #define Switch_2 8
-#define Humidity_Led 7
-#define Temp_Led 6
+//#define Humidity_Led 7
+//#define Temp_Led 6
 struct AQTIME {
   byte h1;
   byte m1;
@@ -246,14 +246,14 @@ void setup()
   pinMode(Switch_2, OUTPUT);
   pinMode(Light_1, OUTPUT);
   pinMode(Light_2, OUTPUT);
-  pinMode(Humidity_Led, OUTPUT); // al momento scollegato
-  pinMode(Temp_Led, OUTPUT); 
+  //pinMode(Humidity_Led, OUTPUT); // al momento scollegato
+  //pinMode(Temp_Led, OUTPUT); 
   // Set initial state, tutto spento tranne status led
   digitalWrite(Switch_1, LOW);
   digitalWrite(Switch_2, LOW);
   analogWrite(Light_1, 0);    // Turn off light 1
   analogWrite(Light_2, 0);    // Turn off light 2
-  digitalWrite(Humidity_Led, LOW);
+  //digitalWrite(Humidity_Led, LOW);
   out[0] = Light_1;
   out[1] = Light_2;
   out[2] = Switch_1;
@@ -494,18 +494,46 @@ void calculations()
       out_s = ON;
     // else if(out_m[li] == MAX)
     //  out_s = MAX;
-    else {
+    else if (out_m[li] == AUTO) {
+      if (li < 1) {
       int temperature  = dht.getTemperature();
-
-      if (ti[li].power > temperature) 
+      
+      if (ti[0].power < temperature) 
       // checking if we are in the ON time period
       //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
       //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
+
+      //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
+        out_s = ON;
+      else
+        out_s = OFF;
+    } else if (li < 2) {
+      int temperature  = dht.getTemperature();
+      
+      if (ti[1].power > temperature) 
+      // checking if we are in the ON time period
+      //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
+      //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
+
+      //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
+        out_s = ON;
+      else
+        out_s = OFF;
+    } else if (li < 3) {
+      int humidity  = dht.getHumidity();
+      
+      if (ti[2].power > humidity) 
+      // checking if we are in the ON time period
+      //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
+      //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
+
       //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
         out_s = ON;
       else
         out_s = OFF;
     }
+
+  }
     /* 
     if(li < 2) {
 //      Serial.print("Status = ");
@@ -622,19 +650,20 @@ void do_menu_entry(int en)
 
   switch(en) {
      case 0:
-       set_time();
+       //set_time();
+      set_function(1);
        break;
      case 1:
-       set_function(1);
-       break;
-     case 2:
        set_function(2);
        break;
+     case 2:
+       set_function(3);
+       break;
      case 3:
-       set_function(3, 0);
+       set_function(4);
        break;
      case 4:
-       set_function(4, 0);
+       set_time();
        break;
        case 5:
        set_function(5, 0);
@@ -903,9 +932,9 @@ void set_function(byte lnb, byte wpower/*, byte wtemp*/)
               case 13:
                 pos = 12;
                 break;
-               case 15:
-                 pos = 13;
-                 break;
+            //   case 15:
+            //     pos = 13;
+            //     break;
           }
           break;
         case BT_RIGHT:
@@ -937,9 +966,9 @@ void set_function(byte lnb, byte wpower/*, byte wtemp*/)
               case 12:
                 pos = (wpower) ? 13 : 10;
                 break;
-              case 13:
-                pos = 15;
-                break;
+             // case 13:
+             //   pos = 15;
+             //   break;
           }
           break;
        case BT_UP:
@@ -1011,7 +1040,7 @@ void display_data()
   lcd.setCursor(0,0);
   lcd.print("24/08/14");
   lcd.print(" 21:43");
-  lcd.print(ti[1].power);
+  //lcd.print(ti[1].power);
   /*
   // Prints RTC Time on RTC
   now = RTC.now();
@@ -1108,6 +1137,7 @@ void print2dec(int nb) { //this adds a 0 before single digit numbers
   }
   lcd.print(nb);
 }
+
 
 
 
