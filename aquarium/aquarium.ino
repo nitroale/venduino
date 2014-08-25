@@ -120,16 +120,15 @@ const byte cols = 16, lines = 2;
 
 // menu of status
 const int menumin = 0;
-const int menumax = 6;
+const int menumax = 3;
 
 char* menu_entry[] = {
-  "1. Ventole",
-  "2. Serpentina",
-  "3. Umidita' ",
-  "4. Switch 2 set ",
-  "5. Set Data/Ora",
-  "6. Menu entry 6 ",
-  "7. Menu vuoto 7 "
+  "1. Temperatura ",
+  "2. Umidita'    ",
+  "3. Luci        ",
+  "4. Set Data/Ora"
+  //"5. Menu entry 5 ",
+  //"6. Menu vuoto 6 "
 };
 
 // status of programm
@@ -145,10 +144,10 @@ void set_function(byte lnb, byte wpower=1);
 /*
  * Define the devices
  */
-#define Light_1 11
-#define Light_2 10
-#define Switch_1 9
-#define Switch_2 8
+#define ventola 11
+#define serpentina 10
+#define umidita 9
+#define luci 8
 //#define Humidity_Led 7
 //#define Temp_Led 6
 struct AQTIME {
@@ -242,22 +241,22 @@ void setup()
   }
   
   // setout leds
-  pinMode(Switch_1, OUTPUT);
-  pinMode(Switch_2, OUTPUT);
-  pinMode(Light_1, OUTPUT);
-  pinMode(Light_2, OUTPUT);
+  pinMode(umidita, OUTPUT);
+  pinMode(luci, OUTPUT);
+  pinMode(ventola, OUTPUT);
+  pinMode(serpentina, OUTPUT);
   //pinMode(Humidity_Led, OUTPUT); // al momento scollegato
   //pinMode(Temp_Led, OUTPUT); 
   // Set initial state, tutto spento tranne status led
-  digitalWrite(Switch_1, LOW);
-  digitalWrite(Switch_2, LOW);
-  analogWrite(Light_1, 0);    // Turn off light 1
-  analogWrite(Light_2, 0);    // Turn off light 2
+  digitalWrite(umidita, LOW);
+  digitalWrite(luci, LOW);
+  analogWrite(ventola, 0);    // Turn off light 1
+  analogWrite(serpentina, 0);    // Turn off light 2
   //digitalWrite(Humidity_Led, LOW);
-  out[0] = Light_1;
-  out[1] = Light_2;
-  out[2] = Switch_1;
-  out[3] = Switch_2;
+  out[0] = ventola;
+  out[1] = serpentina;
+  out[2] = umidita;
+  out[3] = luci;
   for(int i = 0; i < NBSETS; i++) {
     out_m[i] = AUTO;
     //current_l[NBSETS] = asked_l[NBSETS] = last_l[NBSETS] = 0;  // last asked level and last level
@@ -338,17 +337,17 @@ void chg_status()
 void switch_out(byte n)
 {
   switch(out_m[n]) {
-    case OFF:
+    case ON:
       out_m[n] = AUTO;
       break;
     case AUTO:
-      out_m[n] = ON; // 1
+      out_m[n] = OFF; // 1
       break;
     /*case ON:
       out_m[n] = MAX;
       break;*/
-    case ON:
-      out_m[n] = OFF;
+    case OFF:
+      out_m[n] = ON;
       break;
   }
   display_out(n);
@@ -417,8 +416,7 @@ int read_button()
 int read_button_blocking()
 {
   int i;
-
-  Serial.println("read button blocking");
+  // Serial.println("read button blocking");
 
   while((i = read_button()) == 0)
     delay(50);
@@ -441,7 +439,7 @@ void calculations()
   // read from the sensor:  
   //delay(100);
   //readings[index] = analogRead(sensorPin);
-//  delay(100);
+  //  delay(100);
   //Serial.print(readings[index]); Serial.println(" reading");
   // add the reading to the total:
   //total= total + readings[index];      
@@ -453,8 +451,8 @@ void calculations()
      
   // if we're at the end of the array...
   //if (index >= numReadings)              
-     // ...wrap around to the beginning:
-   //  index = 0;                          
+  // ...wrap around to the beginning:
+  //  index = 0;                          
 
   //if(full) {
     // calculate the average:
@@ -471,7 +469,7 @@ void calculations()
     //Serial.print(temperatureC); Serial.println(" degrees C");
   //}
   //else {
-    //Serial.print(index); Serial.println(" averaging");
+  //Serial.print(index); Serial.println(" averaging");
   //}  
 
   // read the date  
@@ -496,44 +494,44 @@ void calculations()
     //  out_s = MAX;
     else if (out_m[li] == AUTO) {
       if (li < 1) {
-      int temperature  = dht.getTemperature();
-      
-      if (ti[0].power < temperature) 
+        int temperature  = dht.getTemperature();
+        if (ti[0].power < temperature) {
       // checking if we are in the ON time period
       //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
       //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
 
       //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
         out_s = ON;
-      else
+      } else {
         out_s = OFF;
+      }
     } else if (li < 2) {
       int temperature  = dht.getTemperature();
-      
-      if (ti[1].power > temperature) 
+      if (ti[0].power > temperature) {
       // checking if we are in the ON time period
       //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
       //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
 
       //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
         out_s = ON;
-      else
+      } else {
         out_s = OFF;
+      }
     } else if (li < 3) {
       int humidity  = dht.getHumidity();
       
-      if (ti[2].power > humidity) 
+      if (ti[1].power > humidity) {
       // checking if we are in the ON time period
       //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
       //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
 
       //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
-        out_s = ON;
-      else
+        out_s = ON; 
+      } else {
         out_s = OFF;
     }
-
   }
+}
     /* 
     if(li < 2) {
 //      Serial.print("Status = ");
@@ -599,11 +597,11 @@ void do_menu()
   start_menu();
 
   do {
-    Serial.print("not set button");
-    Serial.print("button = ");
-    Serial.print(pressed_bt);
-    Serial.print(",  menuline = ");
-    Serial.println(menuline);
+    //Serial.print("not set button");
+    //Serial.print("button = ");
+    //Serial.print(pressed_bt);
+    //Serial.print(",  menuline = ");
+    //Serial.println(menuline);
 
     switch(pressed_bt) {
       case BT_LEFT:
@@ -625,22 +623,24 @@ void do_menu()
 
     lcd.setCursor(0, 1);
     lcd.write(menu_entry[menuline]);
+    lcd.print("\076");
     lcd.setCursor(15, 1);
-  } while((pressed_bt = read_button_blocking()) != BT_SET);
+  } while ((pressed_bt = read_button_blocking()) != BT_SET);
 
-  Serial.println("SET button pressed");
-  chg_status();
+  Serial.println("SET button pressed")
+;  chg_status();
 }
 
 void start_menu()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.write("Menu: use ");
+  lcd.write("Menu:  ");
   lcd.write(1);
   lcd.write(2);
+  lcd.write(' ');
   lcd.write(126);
-  lcd.write("SET");
+  lcd.write("OK");
 }
 
 void do_menu_entry(int en)
@@ -657,20 +657,20 @@ void do_menu_entry(int en)
        set_function(2);
        break;
      case 2:
-       set_function(3);
+       set_function(3, 0);
        break;
      case 3:
-       set_function(4);
-       break;
-     case 4:
        set_time();
        break;
-       case 5:
-       set_function(5, 0);
-       break;
-       case 6:
-       set_function(6, 0);
-       break;
+    // case 4:
+    // set_time();
+    //   break;
+    //   case 5:
+    //   set_function(5, 0);
+    //   break;
+    //   case 6:
+    //   set_function(6, 0);
+    //  break;
   }
 }
 
@@ -1038,8 +1038,8 @@ void display_data()
 {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("24/08/14");
-  lcd.print(" 21:43");
+  lcd.print("25/08/14");
+  lcd.print(" 23:13");
   //lcd.print(ti[1].power);
   /*
   // Prints RTC Time on RTC
