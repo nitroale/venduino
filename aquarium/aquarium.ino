@@ -498,14 +498,14 @@ void calculations()
         if (ti[0].power < temperature) {
       // checking if we are in the ON time period
       //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
-      //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
-
-      //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
+      //if ( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
+      // || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) ){
         out_s = ON;
       } else {
         out_s = OFF;
       }
-    } else if (li < 2) {
+    }
+     else if (li < 2) {
       int temperature  = dht.getTemperature();
       if (ti[0].power > temperature) {
       // checking if we are in the ON time period
@@ -529,9 +529,20 @@ void calculations()
         out_s = ON; 
       } else {
         out_s = OFF;
+      } 
+    } else if (li < 4) {
+      //if (m < ti[3].m1) {
+            // checking if we are in the ON time period
+      //byte order = ((ti[3].h2 > ti[3].h1) || (ti[3].h1 == ti[3].h2 && ti[3].m2 >= ti[3].m1)) ? 1 : 0;
+      if ((h > ti[3].h1 || (h == ti[3].h1 && m >= ti[3].m1)) && (h < ti[3].h2 || (h == ti[3].h2 && m <= ti[3].m2))
+//
+      || ((h > ti[3].h2 || (h == ti[3].h2 && m >= ti[3].m2)) && (h < ti[3].h1 || (h == ti[3].h1 && m <= ti[3].m1))) ) {
+          out_s = ON; 
+      } else {
+        out_s = OFF;
+      }
     }
   }
-}
     /* 
     if(li < 2) {
 //      Serial.print("Status = ");
@@ -644,7 +655,7 @@ void start_menu()
 }
 
 void do_menu_entry(int en)
-{
+{ 
   Serial.print("Do menu entry:");
   Serial.println(en);
 
@@ -1036,12 +1047,12 @@ void read_eeprom(byte place)
 // this displays the data on the screen: this function has to be rewritten and the call also. Do not need to redisplay everithing each second
 void display_data()
 {
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("25/08/14");
-  lcd.print(" 23:13");
+  //lcd.clear();
+  //lcd.setCursor(0,0);
+  //lcd.print("25/08/14");
+  //lcd.print(" 23:13");
   //lcd.print(ti[1].power);
-  /*
+  
   // Prints RTC Time on RTC
   now = RTC.now();
   
@@ -1058,17 +1069,18 @@ void display_data()
   print2dec(now.month());
   lcd.print('/');
   lcd.print(now.year());
-
-  // move the cursor to the second line
-  lcd.setCursor(0, 1);
-  // Print time
+  lcd.print(' ');
   print2dec(now.hour());
   lcd.print(':');
   print2dec(now.minute());
   lcd.print(':');
   print2dec(now.second());
-  */
-  lcd.print(' ');
+  // move the cursor to the second line
+  //lcd.setCursor(0, 1);
+  // Print time
+  
+  
+  //lcd.print(' ');
   // Prints statuses
   for(byte i = 0; i < NBSETS; i++) {
     display_out(i);
@@ -1137,6 +1149,7 @@ void print2dec(int nb) { //this adds a 0 before single digit numbers
   }
   lcd.print(nb);
 }
+
 
 
 
