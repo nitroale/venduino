@@ -496,41 +496,44 @@ void calculations()
       if (li < 1) {
         int temperature  = dht.getTemperature();
         if (ti[0].power < temperature) {
-      // checking if we are in the ON time period
-      //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
-      //if ( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
-      // || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) ){
-        out_s = ON;
-      } else {
-        out_s = OFF;
-      }
-    }
-     else if (li < 2) {
+          // checking if we are in the ON time period
+          byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
+          if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
+            out_s = ON;
+          } else {
+            out_s = OFF;
+          }
+        } else {
+          out_s = OFF;
+        }      
+     } else if (li < 2) {
       int temperature  = dht.getTemperature();
       if (ti[0].power > temperature) {
       // checking if we are in the ON time period
-      //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
-      //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
-
-      //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
-        out_s = ON;
-      } else {
-        out_s = OFF;
-      }
-    } else if (li < 3) {
+          byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
+          if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
+            out_s = ON;
+          } else {
+            out_s = OFF;
+          }
+        } else {
+          out_s = OFF;
+        }      
+     } else if (li < 3) {
       int humidity  = dht.getHumidity();
       
       if (ti[1].power > humidity) {
       // checking if we are in the ON time period
-      //byte order = ((ti[li].h2 > ti[li].h1) || (ti[li].h1 == ti[li].h2 && ti[li].m2 >= ti[li].m1)) ? 1 : 0;
-      //if( order && (h > ti[li].h1 || (h == ti[li].h1 && m >= ti[li].m1)) && (h < ti[li].h2 || (h == ti[li].h2 && m <= ti[li].m2))
-
-      //  || ((h > ti[li].h2 || (h == ti[li].h2 && m >= ti[li].m2)) && (h < ti[li].h1 || (h == ti[li].h1 && m <= ti[li].m1))) )
-        out_s = ON; 
-      } else {
-        out_s = OFF;
-      } 
-    } else if (li < 4) {
+          byte order = ((ti[1].h2 > ti[1].h1) || (ti[1].h1 == ti[1].h2 && ti[1].m2 >= ti[1].m1)) ? 1 : 0;
+          if ( order && (h > ti[1].h1 || (h == ti[1].h1 && m >= ti[1].m1)) && (h < ti[1].h2 || (h == ti[1].h2 && m <= ti[1].m2)) || ((h > ti[1].h2 || (h == ti[1].h2 && m >= ti[1].m2)) && (h < ti[1].h1 || (h == ti[1].h1 && m <= ti[1].m1))) ){
+            out_s = ON;
+          } else {
+            out_s = OFF;
+          }
+        } else {
+          out_s = OFF;
+        }      
+     } else if (li < 4) {
       //if (m < ti[3].m1) {
             // checking if we are in the ON time period
       byte order = ((ti[2].h2 > ti[2].h1) || (ti[2].h1 == ti[2].h2 && ti[2].m2 >= ti[2].m1)) ? 1 : 0;
