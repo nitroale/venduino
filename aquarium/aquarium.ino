@@ -533,10 +533,8 @@ void calculations()
     } else if (li < 4) {
       //if (m < ti[3].m1) {
             // checking if we are in the ON time period
-      //byte order = ((ti[3].h2 > ti[3].h1) || (ti[3].h1 == ti[3].h2 && ti[3].m2 >= ti[3].m1)) ? 1 : 0;
-      if ((h > ti[3].h1 || (h == ti[3].h1 && m >= ti[3].m1)) && (h < ti[3].h2 || (h == ti[3].h2 && m <= ti[3].m2))
-//
-      || ((h > ti[3].h2 || (h == ti[3].h2 && m >= ti[3].m2)) && (h < ti[3].h1 || (h == ti[3].h1 && m <= ti[3].m1))) ) {
+      byte order = ((ti[2].h2 > ti[2].h1) || (ti[2].h1 == ti[2].h2 && ti[2].m2 >= ti[2].m1)) ? 1 : 0;
+      if ((h > ti[2].h1 || (h == ti[2].h1 && m >= ti[2].m1)) && (h < ti[2].h2 || (h == ti[2].h2 && m <= ti[2].m2)) || ((h > ti[2].h2 || (h == ti[2].h2 && m >= ti[2].m2)) && (h < ti[2].h1 || (h == ti[2].h1 && m <= ti[2].m1))) ) {
           out_s = ON; 
       } else {
         out_s = OFF;
