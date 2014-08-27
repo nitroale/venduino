@@ -68,7 +68,16 @@ byte down[8] = {
 // Change values depending on your real measurements
 //#define aref_voltage 4.91 // real voltage
 //#define amplifier 3.27    // 3.27 -> amplifier = (R8+R10)/R8 = (220+500)/220, exact=(216+558)/216=3.58
+ #include "pitches.h"
 
+// notes in the melody:
+int melody[] = {
+  NOTE_C4, NOTE_G3,NOTE_G3, NOTE_A3, NOTE_G3,0, /*NOTE_B3, NOTE_C4*/};
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int noteDurations[] = {
+  4, 8, 8, 4,4,4/*,4,4*/ };
+  
 //const float baselineTemp = 20.0;
 const int sensorPin = A0;
 
@@ -266,6 +275,22 @@ void setup()
   //transitionSteps = transitionDuration / calculationInterval *transitionDuration;
   
   delay(50);
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; thisNote < 6; thisNote++) {
+
+    // to calculate the note duration, take one second 
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000/noteDurations[thisNote];
+    tone(7, melody[thisNote],noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(7);
+  }
 }
 
 /*
@@ -1150,6 +1175,7 @@ void print2dec(int nb) { //this adds a 0 before single digit numbers
   }
   lcd.print(nb);
 }
+
 
 
 
