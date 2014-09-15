@@ -153,8 +153,8 @@ void set_function(byte lnb, byte wpower=1);
 /*
  * Define the devices
  */
-#define ventola 11
-#define serpentina 10
+#define ventola 10
+#define serpentina 11
 #define umidita 9
 #define luci 8
 //#define Humidity_Led 7
