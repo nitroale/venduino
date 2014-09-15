@@ -519,7 +519,7 @@ void calculations()
     //  out_s = MAX;
     else if (out_m[li] == AUTO) {
       if (li < 1) {
-        int temperature  = dht.getTemperature() -6;
+        int temperature  = dht.getTemperature()-6;
         if (ti[0].power < temperature) {
           // checking if we are in the ON time period
           byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
@@ -532,7 +532,7 @@ void calculations()
           out_s = OFF;
         }      
      } else if (li < 2) {
-      int temperature  = dht.getTemperature();
+      int temperature  = dht.getTemperature()-6;
       if (ti[0].power > temperature) {
       // checking if we are in the ON time period
           byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
@@ -545,7 +545,7 @@ void calculations()
           out_s = OFF;
         }      
      } else if (li < 3) {
-      int humidity  = dht.getHumidity();
+      int humidity  = dht.getHumidity()+20;
       
       if (ti[1].power > humidity) {
       // checking if we are in the ON time period
@@ -1133,9 +1133,9 @@ void display_data()
   //}
   
   lcd.print("T:");
-  lcd.print(temperature);
+  lcd.print(temperature-6);
   lcd.print(" U:");
-  lcd.print(humidity);
+  lcd.print(humidity+20);
   // Now prints on LCD
   /*
   if(full) {
