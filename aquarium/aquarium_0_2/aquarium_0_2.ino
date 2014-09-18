@@ -2,6 +2,7 @@
  
  Madrenatura by Alessandro Giuliano 8/2014
  Based on Aquarium controller by (C) 5/2014 Flavius Bindea 
+ Other contributor: Alessandro Savoini
 
 =============================================== 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -150,6 +151,7 @@ byte out[NBSETS];
 #define ON 2
 byte out_m[NBSETS];
 
+// TESTARE SE SI POSSONO ELIMINARE
 // for nice transition
 //const unsigned long transitionDuration = 0000;
 //unsigned int transitionSteps;
@@ -257,9 +259,9 @@ void setup()
   }
 }
 
-/*****************************************************************
-**                              MAIN LOOP                       **
-******************************************************************/
+/****************************************************************************************************************
+******************                              MAIN LOOP                       *********************************
+****************************************************************************************************************/
 void loop() 
 {
   int pressed_bt;
@@ -310,11 +312,14 @@ void loop()
 }
 
 
-/*****************************************************************
-**              END MAIN LOOP                                   **
-*****************************************************************/
+/********************************************************************************************************
+**                       END MAIN LOOP                                   ********************************
+********************************************************************************************************/
 
-// switch the menu status
+/***************************************************************
+**                  switch the menu status                    **
+***************************************************************/
+
 void chg_status()
 {
   if(status == ST_DISPLAY) {
@@ -327,7 +332,10 @@ void chg_status()
   }
 }
 
-// switch out put mode
+/***************************************************************
+**                   switch out put mode                      **
+***************************************************************/
+
 void switch_out(byte n)
 {
   switch(out_m[n]) {
@@ -344,9 +352,10 @@ void switch_out(byte n)
   display_out(n);
 }
 
-/*
-** return button status if it has changed
-*/
+/******************************************************************
+**            return button status if it has changed             **
+******************************************************************/
+
 int read_button()
 {
   int button;
@@ -384,7 +393,10 @@ int read_button()
   return(0);
 }
 
-// read blocking
+/************************************************************
+**                     read blocking                       **
+************************************************************/
+
 int read_button_blocking()
 {
   int i;
@@ -394,9 +406,9 @@ int read_button_blocking()
   return i;
 }
 
-/*
-** does interval calculations
-*/
+/*************************************************************
+**                does interval calculations                **
+*************************************************************/
 
 void calculations()
 {
@@ -421,9 +433,11 @@ void calculations()
       if (li < 1) {
         int temperature  = dht.getTemperature()-6;
         if (ti[0].power < temperature) {
-          // checking if we are in the ON time period
+          // checking if we are in the ON time period giusto!
           byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
-          if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
+          if (( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
+                    || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1))) 
+                    ) || (ti[0].h2 >= ti[0].h1 && ti[0].h1 <= h && h <= ti[0].h2 && m >= ti[0].m1)){
             out_s = ON;
           } else {
             out_s = OFF;
@@ -437,7 +451,8 @@ void calculations()
       if (ti[0].power > temperature) {
       // checking if we are in the ON time period
           byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
-          if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
+          if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
+                    || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
             out_s = ON;
           } else {
             out_s = OFF;
@@ -478,7 +493,10 @@ void calculations()
   }
 }
 
-// does the menu
+/**************************************************************
+**                     does the menu                         **
+**************************************************************/
+
 void do_menu()
 {
   int pressed_bt = -1;
@@ -518,6 +536,7 @@ void do_menu()
 ;  chg_status();
 }
 
+
 void start_menu() { 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -549,9 +568,10 @@ void do_menu_entry(int en) {
   }
 } 
 
-/*
-** Menu entry to setup the time
-*/
+/***************************************************
+**            Menu entry to setup the time        **
+***************************************************/
+
 void set_time()
 {
   int pressed_bt = -1;
@@ -676,9 +696,9 @@ void set_time()
        }
   
       if(val[pos] < '0')
-        val[pos] = '0';
+        val[pos] = '9';
       else if (val[pos] > '9')
-        val[pos] = '9'; 
+        val[pos] = '0'; 
         
       lcd.setCursor(pos, 1);
       lcd.print(val[pos]);
@@ -710,9 +730,10 @@ void set_time()
   RTC.adjust(DateTime(year, month, day, hour, min, 0));
 }
 
-/*
-** setting a entry in the menu
-*/
+/************************************************************
+**           setting a entry in the menu                   **
+************************************************************/
+
 void set_function(byte lnb, byte wpower)
 {
   int place, eelocate;  
@@ -882,7 +903,10 @@ void set_function(byte lnb, byte wpower)
   EEPROM.write(eelocate++, power); // P1  
 }
 
-// reads data from EEPROM
+/*********************************************************
+**             reads data from EEPROM                   **
+*********************************************************/
+
 void read_eeprom(byte place)
 {
   int eelocate;
@@ -894,7 +918,10 @@ void read_eeprom(byte place)
   ti[place].power = EEPROM.read(eelocate++);
 }
 
-// this displays the data on the screen: this function has to be rewritten and the call also. Do not need to redisplay everithing each second
+/************************************************************
+**      this displays the data on the screen               **
+************************************************************/
+
 void display_data()
 {  
   // Prints RTC Time on RTC
@@ -921,8 +948,10 @@ void display_data()
   }
 }
 
-  
-  // display temp and humidity
+/******************************************************** 
+**                display temp and humidity            **
+********************************************************/
+
 void display_sensor()
 {
   lcd.setCursor(0,1);
@@ -934,6 +963,10 @@ void display_sensor()
   lcd.print(" U:");
   lcd.print(humidity+20);
 }
+
+/**********************************************************
+**              display modalità dispositivi             **
+**********************************************************/
 
 void display_out(byte i)
 {
@@ -950,8 +983,11 @@ void display_out(byte i)
       break;
   }        
 }
+/***************************************************
+**   this adds a 0 before single digit numbers    **
+***************************************************/
 
-void print2dec(int nb) { //this adds a 0 before single digit numbers
+void print2dec(int nb) {
   if (nb >= 0 && nb < 10) {
     lcd.write('0');
   }
