@@ -1,8 +1,7 @@
 /*
  
- Aquarium controler
- 
- (C) 5/2014 Flavius Bindea
+ Madrenatura by Alessandro Giuliano 8/2014
+ Based on Aquarium controller by (C) 5/2014 Flavius Bindea 
 
 =============================================== 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,7 +31,6 @@ THE SOFTWARE.
 #include <EEPROM.h> // Fro read and write EEPROM
 #include <DHT.h>
 DHT dht;
-// include the library code:
 #include <LiquidCrystal.h>
 // include le note musicali
  #include "pitches.h"
@@ -170,7 +168,7 @@ const byte AQ_SIG1 = 45, AQ_SIG2 = 899;
 void setup() 
 {
   Serial.begin(57600);
-  Serial.println("Welcome to Aquarium Controler");
+  Serial.println("Welcome to Madrenatura");
   // DHT setup 
   dht.setup(A0);                          
   delay(dht.getMinimumSamplingPeriod());  
@@ -195,12 +193,9 @@ void setup()
   lcd.begin(cols, lines);
   
   // Print a message to the LCD.
-  lcd.print("Reptile");
-  // set the cursor to column 0, line 1
-  // line 1 is the second row, since counting begins with 0
+  lcd.print("Madrenatura");
   lcd.setCursor(0, 1);
-  // print to the second line
-  lcd.print("Controller");
+  lcd.print("Made in Italy");
   delay(800);
   
   // trys to read EEPROM
@@ -209,12 +204,10 @@ void setup()
     delay(2000);
     EEPROM.write(0, AQ_SIG1);
     EEPROM.write(1, AQ_SIG2);
-    
     for(int i = 2; i < 2+NBSETS*5; i++) {
       EEPROM.write(i, 0);
     }
-  }
-  else {
+  } else {
     // reads the EEPROM setup
     read_eeprom(0);
     read_eeprom(1);
@@ -227,7 +220,7 @@ void setup()
   pinMode(luci, OUTPUT);
   pinMode(ventola, OUTPUT);
   pinMode(serpentina, OUTPUT); 
-  // Set initial state, tutto spento tranne status led
+  // Set initial state
   digitalWrite(umidita, LOW);
   digitalWrite(luci, LOW);
   analogWrite(ventola, 0);    
@@ -237,10 +230,11 @@ void setup()
   out[1] = serpentina;
   out[2] = umidita;
   out[3] = luci;
+
   for(int i = 0; i < NBSETS; i++) {
     out_m[i] = AUTO;
   }    
-    delay(50);
+  delay(50);
   
   // notes in the melody:
   int melody[] = {NOTE_C4, NOTE_G3,NOTE_G3, NOTE_A3, NOTE_G3,0};
@@ -286,6 +280,7 @@ void loop()
       previousDisplayMillis = currentMillis;  
       // display the data on the screen
       display_data();
+      display_sensor();
     } 
   }
   
@@ -422,6 +417,7 @@ void calculations()
     } else if(out_m[li] == ON) {
       out_s = ON;
     } else if (out_m[li] == AUTO) {
+      // programma 1 temperatura per ventola
       if (li < 1) {
         int temperature  = dht.getTemperature()-6;
         if (ti[0].power < temperature) {
@@ -434,7 +430,8 @@ void calculations()
           }
         } else {
           out_s = OFF;
-        }      
+        }
+      // programma 2   temperatura per serpentina   
      } else if (li < 2) {
       int temperature  = dht.getTemperature()-6;
       if (ti[0].power > temperature) {
@@ -447,10 +444,10 @@ void calculations()
           }
         } else {
           out_s = OFF;
-        }      
+        } 
+      // programma 3 umidità     
      } else if (li < 3) {
       int humidity  = dht.getHumidity()+20;
-      
       if (ti[1].power > humidity) {
       // checking if we are in the ON time period
           byte order = ((ti[1].h2 > ti[1].h1) || (ti[1].h1 == ti[1].h2 && ti[1].m2 >= ti[1].m1)) ? 1 : 0;
@@ -461,7 +458,8 @@ void calculations()
           }
         } else {
           out_s = OFF;
-        }      
+        }  
+      // programma 4 luci    
      } else if (li < 4) {
       // checking if we are in the ON time period
       byte order = ((ti[2].h2 > ti[2].h1) || (ti[2].h1 == ti[2].h2 && ti[2].m2 >= ti[2].m1)) ? 1 : 0;
@@ -472,7 +470,7 @@ void calculations()
       }
     }
   }
-
+    // apre e chiude effettivamente i rele
       if(out_s == OFF)
         digitalWrite(out[li], LOW);
       else
@@ -921,9 +919,12 @@ void display_data()
   for(byte i = 0; i < NBSETS; i++) {
     display_out(i);
   }
+}
+
   
-  
-  // displays temperature
+  // display temp and humidity
+void display_sensor()
+{
   lcd.setCursor(0,1);
   int temperature = dht.getTemperature();
   int humidity = dht.getHumidity();
