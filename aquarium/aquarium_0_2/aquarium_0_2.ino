@@ -717,7 +717,7 @@ void set_time()
 */
 void set_function(byte lnb, byte wpower)
 {
-  int place, eelocate;
+  int place, eelocate;  
   int pressed_bt = -1;
   int pos = 0, v;
   char val[16];
@@ -768,7 +768,7 @@ void set_function(byte lnb, byte wpower)
   lcd.setCursor(0, 0);
   lcd.write("Start Stop ");
   if(wpower)
-    lcd.write(" TMP");
+    lcd.write(" VAL");
 
   lcd.setCursor(0, 1);
   for(i = 0; i < 16; i++)
@@ -849,9 +849,9 @@ void set_function(byte lnb, byte wpower)
        }
   
       if(val[pos] < '0')
-        val[pos] = '0';
+        val[pos] = '9';
       else if (val[pos] > '9')
-        val[pos] = '9'; 
+        val[pos] = '0'; 
         
       lcd.setCursor(pos, 1);
       lcd.print(val[pos]);
