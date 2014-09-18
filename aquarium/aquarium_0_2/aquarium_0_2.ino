@@ -98,7 +98,7 @@ const int buttonNONE = 900;   // reading should be 1023
 
 // For looping display by interval
 unsigned long previousDisplayMillis = 0; 
-unsigned long displayInterval = 1000; 
+unsigned long displayInterval = 10000; 
 // For looping calculation by interval
 unsigned long previousCalculationMillis = 0; 
 unsigned long calculationInterval = 250;
