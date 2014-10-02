@@ -435,9 +435,8 @@ void calculations()
         if (ti[0].power < temperature) {
           // checking if we are in the ON time period giusto!
           byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
-          if (( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
-                    || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1))) 
-                    ) || (ti[0].h2 >= ti[0].h1 && ti[0].h1 <= h && h <= ti[0].h2 && m >= ti[0].m1)){
+          if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
+                    || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
             out_s = ON;
           } else {
             out_s = OFF;
