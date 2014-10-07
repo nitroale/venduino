@@ -72,9 +72,10 @@ byte down[8] = {
 const int sensorPin = A0;
 
 // For buttons
-const int buttonsPin = A1;
-int bstate = 1024, blast = 1024;  // button state and button last state
+//const int buttonsPin = A1;
 
+int bstate = 1024, blast = 1024;  // button state and button last state
+/*
 // change value depending on your measurements
 const int button1max = 75;    // reading should be 0, 75 threshold
 const int button2min = 76;   // reading should be 151, from 76 to 250
@@ -86,7 +87,21 @@ const int button4max = 606;
 const int button5min = 607;   // reading should be 700, from 607 to 850
 const int button5max = 850;
 const int buttonNONE = 900;   // reading should be 1023
+*/
 
+// joystick
+#define THRESHOLD_LOW 350
+#define THRESHOLD_HIGH 650
+
+const byte Pin_VRx = A1;    // Pin inteso qui come verticale
+const byte Pin_VRy = A2;    // Pin inteso qui come orizzontale
+const byte Pin_SW  = 6;    // Pin del bottone sul Joystick
+
+int x_position;
+int y_position;
+char Prec_x_direction = '\0'; // lettura orizzontale nel precedente loop
+char Prec_y_direction = '\0'; // lettura verticale nel precedente loop
+char Prec_b_state = '\0';     // stato del bottone nel precedente loop
 // button types
 #define BT_NONE 0
 #define BT_SET 1
@@ -97,7 +112,7 @@ const int buttonNONE = 900;   // reading should be 1023
 
 // For looping display by interval
 unsigned long previousDisplayMillis = 0; 
-unsigned long displayInterval = 10000; 
+unsigned long displayInterval = 1000; 
 // For looping calculation by interval
 unsigned long previousCalculationMillis = 0; 
 unsigned long calculationInterval = 250;
@@ -198,7 +213,7 @@ void setup()
   lcd.print("Madrenatura");
   lcd.setCursor(0, 1);
   lcd.print("Made in Italy");
-  delay(800);
+  delay(500);
   
   // trys to read EEPROM
   if(AQ_SIG1 != EEPROM.read(0) || AQ_SIG2 != EEPROM.read(1)) {
@@ -257,6 +272,10 @@ void setup()
     // stop the tone playing:
     noTone(7);
   }
+
+  // joystick
+  pinMode(Pin_SW, INPUT);      // Inizializzo il pin del pulsante del JOYSTICK
+  digitalWrite(Pin_SW,HIGH);   // Setto la resistenza di pull-up
 }
 
 /****************************************************************************************************************
@@ -358,23 +377,58 @@ void switch_out(byte n)
 
 int read_button()
 {
+  char x_direction = '\0';
+  char y_direction = '\0';
+  char b_state = '\0';
+  
+  // Pin_VRx è abbinato con y e viceversa per 
+  // via dell'interpretazione diversa che do ai
+  // movimenti del joystick
+  x_position = analogRead(Pin_VRy);
+  y_position = analogRead(Pin_VRx);
+  b_state=digitalRead(Pin_SW);  // Leggo lo stato del pulsante del joystick
+ 
+  // Stabilisco la direzione e stato bottone
+  if (x_position > THRESHOLD_HIGH) 
+    x_direction = 'R'; // Destra
+  else if (x_position < THRESHOLD_LOW)
+    x_direction = 'L'; // Sinistra
+  else
+    x_direction = 'C'; // Riposo
+  if (y_position > THRESHOLD_HIGH)
+    y_direction = 'U'; // Alto
+  else if (y_position < THRESHOLD_LOW)
+    y_direction = 'D'; // Basso
+  else
+    y_direction = 'C'; // Riposo
+  if (digitalRead(Pin_SW)==LOW) 
+     b_state='P'; // è premuto
+  else
+     b_state='-';
+  
+  if (Prec_x_direction != x_direction || Prec_y_direction != y_direction || Prec_b_state != b_state)
+      //Serial.println(String(x_direction)+String(y_direction)+String(b_state));
+  Prec_x_direction = x_direction;
+  Prec_y_direction = y_direction;
+  Prec_b_state=b_state;
+  delay(50);
   int button;
   // read the buttons
-  button = analogRead(buttonsPin);
+  //button = analogRead(buttonsPin);
 
   blast = bstate;
 
-  if (button < button1max)
-    bstate = 1;
-  else if (button >= button2min && button <= button2max)
+  if (x_direction == 'R')
     bstate = 2;
-  else if (button >= button3min && button <= button3max)
+  else if (x_direction == 'L')//(button >= button2min && button <= button2max)
     bstate = 3;
-  else if (button >= button4min && button <= button4max)
+  else if (y_direction == 'U')//(button >= button3min && button <= button3max)
     bstate = 4;
-  else if (button >= button5min && button <= button5max)
+  else if (y_direction == 'D')//(button >= button4min && button <= button4max)
     bstate = 5;
-  else if (button >= buttonNONE)
+  else if (b_state=='P')//(button >= button5min && button <= button5max)
+    bstate = 1;
+  else if (b_state=='-')//(button >= buttonNONE)
     bstate = 0;
   else
     bstate = 99; // we should never arrive here
@@ -992,6 +1046,7 @@ void print2dec(int nb) {
   }
   lcd.print(nb);
 }
+
 
 
 
