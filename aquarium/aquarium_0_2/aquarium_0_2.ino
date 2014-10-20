@@ -487,14 +487,42 @@ void calculations()
       if (li < 1) {
         int temperature  = dht.getTemperature()-6;
         if (ti[0].power < temperature) {
+          unsigned long oraInSecondi = now.hour() * 3600L;
+         unsigned long minutiInSecondi = now.minute() * 60L;
+
+         long oraInizio = ti[0].h1;
+         long minutiInizio = ti[0].m1;
+         long oraFine = ti[0].h2;
+         long minutiFine = ti[0].m2;  
+
+        unsigned long secondiInizio = 0;
+        unsigned long secondiFine = 0;
+        unsigned long secondiAttuali = 0;
+        secondiAttuali = oraInSecondi + minutiInSecondi;
+        secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+        secondiFine = (oraFine * 3600 + minutiFine * 60);
+
+        if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+      if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    } else {                  // caso 18:00 8:00
+      if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    }
           // checking if we are in the ON time period giusto!
-          byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
+          /*byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
           if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
                     || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
             out_s = ON;
           } else {
             out_s = OFF;
-          }
+          }*/
         } else {
           out_s = OFF;
         }
@@ -502,14 +530,42 @@ void calculations()
      } else if (li < 2) {
       int temperature  = dht.getTemperature()-6;
       if (ti[0].power > temperature) {
+         unsigned long oraInSecondi = now.hour() * 3600L;
+         unsigned long minutiInSecondi = now.minute() * 60L;
+
+         long oraInizio = ti[0].h1;
+         long minutiInizio = ti[0].m1;
+         long oraFine = ti[0].h2;
+         long minutiFine = ti[0].m2;  
+
+        unsigned long secondiInizio = 0;
+        unsigned long secondiFine = 0;
+        unsigned long secondiAttuali = 0;
+        secondiAttuali = oraInSecondi + minutiInSecondi;
+        secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+        secondiFine = (oraFine * 3600 + minutiFine * 60);
+
+        if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+      if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    } else {                  // caso 18:00 8:00
+      if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    }
       // checking if we are in the ON time period
-          byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
+          /*byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
           if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
                     || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
             out_s = ON;
           } else {
             out_s = OFF;
-          }
+          }*/
         } else {
           out_s = OFF;
         } 
@@ -517,25 +573,81 @@ void calculations()
      } else if (li < 3) {
       int humidity  = dht.getHumidity()+20;
       if (ti[1].power > humidity) {
+          unsigned long oraInSecondi = now.hour() * 3600L;
+         unsigned long minutiInSecondi = now.minute() * 60L;
+
+         long oraInizio = ti[1].h1;
+         long minutiInizio = ti[1].m1;
+         long oraFine = ti[1].h2;
+         long minutiFine = ti[1].m2;  
+
+        unsigned long secondiInizio = 0;
+        unsigned long secondiFine = 0;
+        unsigned long secondiAttuali = 0;
+        secondiAttuali = oraInSecondi + minutiInSecondi;
+        secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+        secondiFine = (oraFine * 3600 + minutiFine * 60);
+
+        if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+      if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    } else {                  // caso 18:00 8:00
+      if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    }
       // checking if we are in the ON time period
-          byte order = ((ti[1].h2 > ti[1].h1) || (ti[1].h1 == ti[1].h2 && ti[1].m2 >= ti[1].m1)) ? 1 : 0;
+         /* byte order = ((ti[1].h2 > ti[1].h1) || (ti[1].h1 == ti[1].h2 && ti[1].m2 >= ti[1].m1)) ? 1 : 0;
           if ( order && (h > ti[1].h1 || (h == ti[1].h1 && m >= ti[1].m1)) && (h < ti[1].h2 || (h == ti[1].h2 && m <= ti[1].m2)) || ((h > ti[1].h2 || (h == ti[1].h2 && m >= ti[1].m2)) && (h < ti[1].h1 || (h == ti[1].h1 && m <= ti[1].m1))) ){
             out_s = ON;
           } else {
             out_s = OFF;
-          }
+          }*/
         } else {
           out_s = OFF;
         }  
       // programma 4 luci    
      } else if (li < 4) {
+         unsigned long oraInSecondi = now.hour() * 3600L;
+         unsigned long minutiInSecondi = now.minute() * 60L;
+
+         long oraInizio = ti[2].h1;
+         long minutiInizio = ti[2].m1;
+         long oraFine = ti[2].h2;
+         long minutiFine = ti[2].m2;  
+
+        unsigned long secondiInizio = 0;
+        unsigned long secondiFine = 0;
+        unsigned long secondiAttuali = 0;
+        secondiAttuali = oraInSecondi + minutiInSecondi;
+        secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+        secondiFine = (oraFine * 3600 + minutiFine * 60);
+
+        if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+      if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    } else {                  // caso 18:00 8:00
+      if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+        out_s=ON;
+      } else {
+        out_s=OFF;
+      }
+    }
       // checking if we are in the ON time period
-      byte order = ((ti[2].h2 > ti[2].h1) || (ti[2].h1 == ti[2].h2 && ti[2].m2 >= ti[2].m1)) ? 1 : 0;
+      /*byte order = ((ti[2].h2 > ti[2].h1) || (ti[2].h1 == ti[2].h2 && ti[2].m2 >= ti[2].m1)) ? 1 : 0;
       if ((h > ti[2].h1 || (h == ti[2].h1 && m >= ti[2].m1)) && (h < ti[2].h2 || (h == ti[2].h2 && m <= ti[2].m2)) || ((h > ti[2].h2 || (h == ti[2].h2 && m >= ti[2].m2)) && (h < ti[2].h1 || (h == ti[2].h1 && m <= ti[2].m1))) ) {
           out_s = ON; 
       } else {
         out_s = OFF;
-      }
+      }*/
     }
   }
     // apre e chiude effettivamente i rele

@@ -71,8 +71,15 @@ void timer() {
      secondiFine = (oraFine * 3600 + minutiFine * 60);
     
     Serial.println(secondiAttuali);
-    Serial.println(secondiInizio);
-    Serial.println(secondiFine);
+    Serial.print("INIZIO: ");
+    Serial.print(oraInizio);
+    Serial.print(":");
+    Serial.println(minutiInizio);
+    Serial.print("FINE: ");
+    Serial.print(oraFine);
+    Serial.print(":");
+    Serial.println(minutiFine);
+    
     
 
    
