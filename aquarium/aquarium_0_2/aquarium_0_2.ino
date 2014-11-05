@@ -1,3 +1,5 @@
+#include <LiquidCrystal_I2C.h>
+
   /*
    
    Madrenatura by Alessandro Giuliano 8/2014
@@ -32,7 +34,7 @@
   #include <EEPROM.h> // Fro read and write EEPROM
   #include <DHT.h>
   DHT dht;
-  #include <LiquidCrystal.h>
+ // #include <LiquidCrystal.h>
   // include le note musicali
    #include "pitches.h"
 
@@ -42,7 +44,7 @@
   DateTime now;
 
   // initialize the library with the numbers of the interface pins
-  LiquidCrystal lcd(13, 12, 5, 4, 3, 2);
+  LiquidCrystal_I2C lcd(0x27,16,2);
 
   // 126: -> 127: <-
   byte up[8] = {
@@ -64,6 +66,30 @@
     B01110,
     B00100,
   };
+  
+  byte termometro[8] = //icon for termometer
+{
+    B00100,
+    B01010,
+    B01010,
+    B01110,
+    B01110,
+    B11111,
+    B11111,
+    B01110
+};
+
+byte goccia[8] = //icon for water droplet
+{
+    B00100,
+    B00100,
+    B01010,
+    B01010,
+    B10001,
+    B10001,
+    B10001,
+    B01110,
+};
 
 
 
@@ -184,12 +210,14 @@
   // Initial setup
   void setup() 
   {
+    lcd.backlight();
     Serial.begin(57600);
     Serial.println("Welcome to Madrenatura");
     // DHT setup 
     dht.setup(A0);                          
     delay(dht.getMinimumSamplingPeriod());  
     pinMode(sensorPin, INPUT);
+    
 
     // Configures RTC
     Wire.begin(); // initalise I2C interface  
@@ -205,11 +233,14 @@
 
     // Configures display
     // set up the number of columns and rows on the LCD 
+    
+    lcd.begin(cols, lines);
     lcd.createChar(1, up);
     lcd.createChar(2, down);
-    lcd.begin(cols, lines);
-    
+    lcd.createChar(3, termometro);
+    lcd.createChar(4, goccia);
     // Print a message to the LCD.
+    lcd.setCursor(0,0);
     lcd.print("Madrenatura");
     lcd.setCursor(0, 1);
     lcd.print("Made in Italy");
@@ -692,7 +723,7 @@
          menuline = menumax;
 
       lcd.setCursor(0, 1);
-      lcd.write(menu_entry[menuline]);
+      lcd.print(menu_entry[menuline]);
       lcd.print("\076");
       lcd.setCursor(15, 1);
     } while ((pressed_bt = read_button_blocking()) != BT_SET);
@@ -705,12 +736,12 @@
   void start_menu() { 
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.write("Menu:  ");
-    lcd.write(1);
-    lcd.write(2);
-    lcd.write(' ');
-    lcd.write(126);
-    lcd.write("OK");
+    lcd.print("Menu:  ");
+    lcd.print((char)1);
+    lcd.print((char)2);
+    lcd.print(' ');
+    lcd.print((char)126);
+    lcd.print("OK");
   }                   
 
   void do_menu_entry(int en) { 
@@ -778,12 +809,12 @@
 
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.write("Time: use");
-    lcd.write(1);
-    lcd.write(2);
-    lcd.write(127);
-    lcd.write(126);
-    lcd.write("SET");
+    lcd.print("Time: use");
+    lcd.print(1);
+    lcd.print(2);
+    lcd.print(127);
+    lcd.print(126);
+    lcd.print("SET");
 
     lcd.setCursor(0, 1);
     for(i = 0; i < 16; i++)
@@ -953,9 +984,9 @@
     
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.write("Start Stop ");
+    lcd.print("Start Stop ");
     if(wpower)
-      lcd.write(" VAL");
+      lcd.print(" VAL");
 
     lcd.setCursor(0, 1);
     if (lnb=5){
@@ -1146,10 +1177,15 @@
     int temperature = dht.getTemperature();
     int humidity = dht.getHumidity();
 
-    lcd.print("T:");
+    lcd.print((char)3);
+    lcd.print(" ");
     lcd.print(temperature);
-    lcd.print(" U:");
+    lcd.print((char)223);
+    lcd.print(" ");
+    lcd.print((char)4);
+    lcd.print(" ");
     lcd.print(humidity);
+    lcd.print("%");
   }
 
   /**********************************************************
@@ -1158,7 +1194,7 @@
 
   void display_out(byte i)
   {
-    lcd.setCursor(10+i, 1);
+    lcd.setCursor(12+i, 1);
     switch(out_m[i]) {
       case OFF:
         lcd.print('0');
@@ -1177,7 +1213,7 @@
 
   void print2dec(int nb) {
     if (nb >= 0 && nb < 10) {
-      lcd.write('0');
+      lcd.print('0');
     }
     lcd.print(nb);
   }
