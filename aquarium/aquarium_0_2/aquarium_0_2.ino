@@ -36,7 +36,7 @@
   DHT dht;
  // #include <LiquidCrystal.h>
   // include le note musicali
-   #include "pitches.h"
+   //#include "pitches.h"
 
   // used for RTC
   const int dayspermonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
@@ -169,7 +169,7 @@ byte goccia[8] = //icon for water droplet
 
   // Define the devices
   #define ventola 10
-  #define serpentina 11
+  #define serpentina 12
   #define umidita 9
   #define luci 8
 
@@ -284,26 +284,6 @@ byte goccia[8] = //icon for water droplet
     }    
     delay(50);
     
-    // notes in the melody:
-    int melody[] = {NOTE_C4, NOTE_G3,NOTE_G3, NOTE_A3, NOTE_G3,0};
-    // note durations: 4 = quarter note, 8 = eighth note, etc.:
-    int noteDurations[] = { 4, 8, 8, 4,4,4 };
-    // iterate over the notes of the melody:
-    for (int thisNote = 0; thisNote < 6; thisNote++) {
-
-      // to calculate the note duration, take one second 
-      // divided by the note type.
-      //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
-      int noteDuration = 1000/noteDurations[thisNote];
-      tone(7, melody[thisNote],noteDuration);
-      // to distinguish the notes, set a minimum time between them.
-      // the note's duration + 30% seems to work well:
-      int pauseBetweenNotes = noteDuration * 1.30;
-      delay(pauseBetweenNotes);
-      // stop the tone playing:
-      noTone(7);
-    }
-
     // joystick
     pinMode(Pin_SW, INPUT);      // Inizializzo il pin del pulsante del JOYSTICK
     digitalWrite(Pin_SW,HIGH);   // Setto la resistenza di pull-up
@@ -989,29 +969,9 @@ byte goccia[8] = //icon for water droplet
       lcd.print(" VAL");
 
     lcd.setCursor(0, 1);
-    if (lnb=5){
-      
-      lcd.print("a");
-      lcd.print(val[7]);
-      lcd.print(val[8]);
-      lcd.print(val[9]);
-      lcd.print(val[10]);
-      lcd.print(val[5]);
-      lcd.print(val[0]);
-      lcd.print(val[1]);
-      lcd.print(val[2]);
-      lcd.print(val[3]);
-      lcd.print(val[4]);
-      lcd.print(val[11]);
-      lcd.print(val[12]);
-      lcd.print(val[13]);
-      lcd.print(val[14]);
-      lcd.print(val[15]);
-    }/*else {
-
     for(i = 0; i < 16; i++)
       lcd.print(val[i]);
-  }*/
+  
     do {
       do {
         Serial.println("not set button");
