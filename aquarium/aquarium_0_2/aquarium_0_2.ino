@@ -1,4 +1,3 @@
-#include <LiquidCrystal_I2C.h>
 
   /*
    
@@ -37,7 +36,8 @@
  // #include <LiquidCrystal.h>
   // include le note musicali
    //#include "pitches.h"
-
+#include <LiquidCrystal_I2C.h>
+  
   // used for RTC
   const int dayspermonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
   RTC_DS1307 RTC;
@@ -96,6 +96,11 @@ byte goccia[8] = //icon for water droplet
     
   // pin dht11
   const int sensorPin = A0;
+  // define led
+  const int ledVentola = 2;
+  const int ledSerpentina = 3;
+  const int ledUmidita = 4;
+  const int ledLuci = 5;
 
   // For buttons
   //const int buttonsPin = A1;
@@ -187,7 +192,7 @@ byte goccia[8] = //icon for water droplet
   byte out[NBSETS];
 
   // statuses of outputs
-  #define OFF 0
+  #define OFF 0                                                     
   #define AUTO 1
   #define ON 2
   byte out_m[NBSETS];
@@ -196,13 +201,13 @@ byte goccia[8] = //icon for water droplet
   // for nice transition
   //const unsigned long transitionDuration = 0000;
   //unsigned int transitionSteps;
-  byte asked_l[NBSETS]; // new asked level
-  byte last_l[NBSETS];  // last asked level
-  unsigned int current_l[NBSETS]; // current level multiplied by 256 in order to avoid floating calculations
-  int incr_l[NBSETS];   // step increment level multiplied by 256 in order to avoid floating calcultations
+  //byte asked_l[NBSETS]; // new asked level
+  //byte last_l[NBSETS];  // last asked level
+  //unsigned int current_l[NBSETS]; // current level multiplied by 256 in order to avoid floating calculations
+  //int incr_l[NBSETS];   // step increment level multiplied by 256 in order to avoid floating calcultations
 
-  #define LightSet 0
-  #define SwitchSet 2
+ // #define LightSet 0
+ // #define SwitchSet 2
 
   // EEPROM signature for aquarium: they are stored in 0 and 1
   const byte AQ_SIG1 = 45, AQ_SIG2 = 899;
@@ -218,7 +223,6 @@ byte goccia[8] = //icon for water droplet
     delay(dht.getMinimumSamplingPeriod());  
     pinMode(sensorPin, INPUT);
     
-
     // Configures RTC
     Wire.begin(); // initalise I2C interface  
     
@@ -232,8 +236,7 @@ byte goccia[8] = //icon for water droplet
     //analogReference(EXTERNAL);
 
     // Configures display
-    // set up the number of columns and rows on the LCD 
-    
+        
     lcd.begin(cols, lines);
     lcd.createChar(1, up);
     lcd.createChar(2, down);
@@ -264,6 +267,10 @@ byte goccia[8] = //icon for water droplet
     }
     
     // setout leds
+    pinMode(ledVentola, OUTPUT);
+    pinMode(ledSerpentina, OUTPUT);
+    pinMode(ledUmidita, OUTPUT);
+    pinMode(ledLuci, OUTPUT);
     pinMode(umidita, OUTPUT);
     pinMode(luci, OUTPUT);
     pinMode(ventola, OUTPUT);
@@ -271,13 +278,20 @@ byte goccia[8] = //icon for water droplet
     // Set initial state
     digitalWrite(umidita, LOW);
     digitalWrite(luci, LOW);
-    analogWrite(ventola, 0);    
-    analogWrite(serpentina, 0);    
+    digitalWrite(ventola, LOW);    
+    digitalWrite(serpentina, LOW); 
+
+    digitalWrite(ledVentola, LOW); 
+    digitalWrite(ledUmidita, LOW);
+    digitalWrite(ledLuci, LOW);  
+    digitalWrite(ledSerpentina, LOW); 
+
     
     out[0] = ventola;
     out[1] = serpentina;
     out[2] = umidita;
     out[3] = luci;
+    
 
     for(int i = 0; i < NBSETS; i++) {
       out_m[i] = AUTO;
@@ -335,12 +349,10 @@ byte goccia[8] = //icon for water droplet
      case BT_DOWN:
         switch_out(3);
         break;
-     }
-        
+     } 
      // small delay
      delay(50);
   }
-
 
   /********************************************************************************************************
   **                       END MAIN LOOP                                   ********************************
@@ -355,8 +367,7 @@ byte goccia[8] = //icon for water droplet
     if(status == ST_DISPLAY) {
       lcd.blink();
       status = ST_MENU;
-    }
-    else {
+    } else {
       lcd.noBlink();
       status = ST_DISPLAY;
     }
@@ -419,14 +430,13 @@ byte goccia[8] = //icon for water droplet
     
     if (Prec_x_direction != x_direction || Prec_y_direction != y_direction || Prec_b_state != b_state)
         //Serial.println(String(x_direction)+String(y_direction)+String(b_state));
-    Prec_x_direction = x_direction;
-    Prec_y_direction = y_direction;
-    Prec_b_state=b_state;
-    delay(50);
+        Prec_x_direction = x_direction;
+        Prec_y_direction = y_direction;
+        Prec_b_state=b_state;
+        delay(50);
+    
     int button;
-    // read the buttons
-    //button = analogRead(buttonsPin);
-
+    
     blast = bstate;
 
     if (x_direction == 'R')
@@ -444,9 +454,9 @@ byte goccia[8] = //icon for water droplet
     else
       bstate = 99; // we should never arrive here
 
-    if(bstate == 99) {
-      Serial.print("ERROR: "); Serial.println(button);
-    }
+    //if(bstate == 99) {
+    //  Serial.print("ERROR: "); Serial.println(button);
+    //}
     
     if (blast != bstate) {
       // state has changed
@@ -489,10 +499,31 @@ byte goccia[8] = //icon for water droplet
 
       byte out_s;
 
+
       if(out_m[li] == OFF) {
         out_s = OFF;
-      } else if(out_m[li] == ON) {
+          if (li < 1 ) {
+            digitalWrite(ledVentola,LOW);
+          } else if (li < 2) {
+            digitalWrite(ledSerpentina,LOW);
+          } else if (li < 3) {
+            digitalWrite(ledUmidita,LOW);
+          } else if (li < 4) {
+            digitalWrite(ledLuci,LOW);
+          }
+        
+      } else if (out_m[li] == ON) {
         out_s = ON;
+        if (li < 1 ) {
+            digitalWrite(ledVentola,HIGH);
+          } else if (li < 2) {
+            digitalWrite(ledSerpentina,HIGH);
+          } else if (li < 3) {
+            digitalWrite(ledUmidita,HIGH);
+          } else if (li < 4) {
+            digitalWrite(ledLuci,HIGH);
+          }
+        
       } else if (out_m[li] == AUTO) {
         // programma 1 temperatura per ventola
         if (li < 1) {
@@ -500,173 +531,154 @@ byte goccia[8] = //icon for water droplet
           if (ti[0].power < temperature) {
             unsigned long oraInSecondi = now.hour() * 3600L;
             unsigned long minutiInSecondi = now.minute() * 60L;
+            long oraInizio = ti[0].h1;
+            long minutiInizio = ti[0].m1;
+            long oraFine = ti[0].h2;
+            long minutiFine = ti[0].m2;  
+            unsigned long secondiInizio = 0;
+            unsigned long secondiFine = 0;
+            unsigned long secondiAttuali = 0;
+            secondiAttuali = oraInSecondi + minutiInSecondi;
+            secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+            secondiFine = (oraFine * 3600 + minutiFine * 60);
 
-           long oraInizio = ti[0].h1;
-           long minutiInizio = ti[0].m1;
-           long oraFine = ti[0].h2;
-           long minutiFine = ti[0].m2;  
-
-          unsigned long secondiInizio = 0;
-          unsigned long secondiFine = 0;
-          unsigned long secondiAttuali = 0;
-          secondiAttuali = oraInSecondi + minutiInSecondi;
-          secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
-          secondiFine = (oraFine * 3600 + minutiFine * 60);
-
-          if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
-        if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      } else {                  // caso 18:00 8:00
-        if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      }
-            // checking if we are in the ON time period giusto!
-            /*byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
-            if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
-                      || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
-              out_s = ON;
-            } else {
-              out_s = OFF;
-            }*/
+            if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+              if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+                out_s=ON;
+                digitalWrite(ledVentola,HIGH);
+              } else {
+                out_s=OFF;
+                digitalWrite(ledVentola,LOW);
+              }
+            } else {                  // caso 18:00 8:00
+              if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+                out_s=ON;
+                digitalWrite(ledVentola,HIGH);
+              } else {
+                out_s=OFF;
+                digitalWrite(ledVentola,LOW);
+              }
+            }
           } else {
             out_s = OFF;
+            digitalWrite(ledVentola,LOW);
           }
         // programma 2   temperatura per serpentina   
        } else if (li < 2) {
-        int temperature  = dht.getTemperature();
-        if (ti[0].power > temperature) {
+          int temperature  = dht.getTemperature();
+          if (ti[0].power > temperature) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
-
            long oraInizio = ti[0].h1;
            long minutiInizio = ti[0].m1;
            long oraFine = ti[0].h2;
            long minutiFine = ti[0].m2;  
-
-          unsigned long secondiInizio = 0;
-          unsigned long secondiFine = 0;
-          unsigned long secondiAttuali = 0;
-          secondiAttuali = oraInSecondi + minutiInSecondi;
-          secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
-          secondiFine = (oraFine * 3600 + minutiFine * 60);
+           unsigned long secondiInizio = 0;
+           unsigned long secondiFine = 0;
+           unsigned long secondiAttuali = 0;
+           secondiAttuali = oraInSecondi + minutiInSecondi;
+           secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+           secondiFine = (oraFine * 3600 + minutiFine * 60);
 
           if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
-        if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      } else {                  // caso 18:00 8:00
-        if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      }
-        // checking if we are in the ON time period
-            /*byte order = ((ti[0].h2 > ti[0].h1) || (ti[0].h1 == ti[0].h2 && ti[0].m2 >= ti[0].m1)) ? 1 : 0;
-            if ( order && (h > ti[0].h1 || (h == ti[0].h1 && m >= ti[0].m1)) && (h < ti[0].h2 || (h == ti[0].h2 && m <= ti[0].m2)) 
-                      || ((h > ti[0].h2 || (h == ti[0].h2 && m >= ti[0].m2)) && (h < ti[0].h1 || (h == ti[0].h1 && m <= ti[0].m1))) ){
-              out_s = ON;
+            if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+              out_s=ON;
+              digitalWrite(ledSerpentina,HIGH);
             } else {
-              out_s = OFF;
-            }*/
-          } else {
+              out_s=OFF;
+              digitalWrite(ledSerpentina,LOW);
+            }
+          } else {                  // caso 18:00 8:00
+            if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+              out_s=ON;
+              digitalWrite(ledSerpentina,HIGH);
+            } else {
+              out_s=OFF;
+              digitalWrite(ledSerpentina,LOW);
+            }
+          }
+        } else {
             out_s = OFF;
-          } 
+            digitalWrite(ledSerpentina,LOW);
+        } 
         // programma 3 umidità     
        } else if (li < 3) {
         int humidity  = dht.getHumidity();
         if (ti[1].power > humidity) {
-            unsigned long oraInSecondi = now.hour() * 3600L;
+           unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
-
            long oraInizio = ti[1].h1;
            long minutiInizio = ti[1].m1;
            long oraFine = ti[1].h2;
            long minutiFine = ti[1].m2;  
-
-          unsigned long secondiInizio = 0;
-          unsigned long secondiFine = 0;
-          unsigned long secondiAttuali = 0;
-          secondiAttuali = oraInSecondi + minutiInSecondi;
-          secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
-          secondiFine = (oraFine * 3600 + minutiFine * 60);
+           unsigned long secondiInizio = 0;
+           unsigned long secondiFine = 0;
+           unsigned long secondiAttuali = 0;
+           secondiAttuali = oraInSecondi + minutiInSecondi;
+           secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+           secondiFine = (oraFine * 3600 + minutiFine * 60);
 
           if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
-        if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      } else {                  // caso 18:00 8:00
-        if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      }
-        // checking if we are in the ON time period
-           /* byte order = ((ti[1].h2 > ti[1].h1) || (ti[1].h1 == ti[1].h2 && ti[1].m2 >= ti[1].m1)) ? 1 : 0;
-            if ( order && (h > ti[1].h1 || (h == ti[1].h1 && m >= ti[1].m1)) && (h < ti[1].h2 || (h == ti[1].h2 && m <= ti[1].m2)) || ((h > ti[1].h2 || (h == ti[1].h2 && m >= ti[1].m2)) && (h < ti[1].h1 || (h == ti[1].h1 && m <= ti[1].m1))) ){
-              out_s = ON;
+            if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+              out_s=ON;
+              digitalWrite(ledUmidita,HIGH);
             } else {
-              out_s = OFF;
-            }*/
-          } else {
-            out_s = OFF;
-          }  
+              out_s=OFF;
+              digitalWrite(ledUmidita,LOW);
+            }
+          } else {                  // caso 18:00 8:00
+            if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+              out_s=ON;
+              digitalWrite(ledUmidita,HIGH);
+            } else {
+              out_s=OFF;
+              digitalWrite(ledUmidita,LOW);
+            }
+          }
+        } else {
+          out_s = OFF;
+          digitalWrite(ledUmidita,LOW);
+        }  
         // programma 4 luci    
        } else if (li < 4) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
-
            long oraInizio = ti[2].h1;
            long minutiInizio = ti[2].m1;
            long oraFine = ti[2].h2;
            long minutiFine = ti[2].m2;  
-
-          unsigned long secondiInizio = 0;
-          unsigned long secondiFine = 0;
-          unsigned long secondiAttuali = 0;
-          secondiAttuali = oraInSecondi + minutiInSecondi;
-          secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
-          secondiFine = (oraFine * 3600 + minutiFine * 60);
-
+           unsigned long secondiInizio = 0;
+           unsigned long secondiFine = 0;
+           unsigned long secondiAttuali = 0;
+           secondiAttuali = oraInSecondi + minutiInSecondi;
+           secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
+           secondiFine = (oraFine * 3600 + minutiFine * 60);
           if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
-        if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
-        }
-      } else {                  // caso 18:00 8:00
-        if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
-          out_s=ON;
-        } else {
-          out_s=OFF;
+            if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+              out_s=ON;
+              digitalWrite(ledLuci,HIGH);
+            } else {
+              out_s=OFF;
+              digitalWrite(ledLuci,LOW);
+            }
+          } else {                  // caso 18:00 8:00
+            if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
+              out_s=ON;
+              digitalWrite(ledLuci,HIGH);
+            } else {
+              out_s=OFF;
+              digitalWrite(ledLuci,LOW);
+            }
+          }
         }
       }
-        // checking if we are in the ON time period
-        /*byte order = ((ti[2].h2 > ti[2].h1) || (ti[2].h1 == ti[2].h2 && ti[2].m2 >= ti[2].m1)) ? 1 : 0;
-        if ((h > ti[2].h1 || (h == ti[2].h1 && m >= ti[2].m1)) && (h < ti[2].h2 || (h == ti[2].h2 && m <= ti[2].m2)) || ((h > ti[2].h2 || (h == ti[2].h2 && m >= ti[2].m2)) && (h < ti[2].h1 || (h == ti[2].h1 && m <= ti[2].m1))) ) {
-            out_s = ON; 
-        } else {
-          out_s = OFF;
-        }*/
-      }
-    }
       // apre e chiude effettivamente i rele
         if(out_s == OFF)
-          digitalWrite(out[li], LOW);
-        else
           digitalWrite(out[li], HIGH);
+        else
+          digitalWrite(out[li], LOW);   
     }
+
   }
 
   /**************************************************************
@@ -708,8 +720,8 @@ byte goccia[8] = //icon for water droplet
       lcd.setCursor(15, 1);
     } while ((pressed_bt = read_button_blocking()) != BT_SET);
 
-    Serial.println("SET button pressed")
-  ;  chg_status();
+    //Serial.println("SET button pressed")
+   chg_status();
   }
 
 
@@ -790,10 +802,10 @@ byte goccia[8] = //icon for water droplet
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Time: use");
-    lcd.print(1);
-    lcd.print(2);
-    lcd.print(127);
-    lcd.print(126);
+    lcd.print(char(1));
+    lcd.print(char(2));
+    lcd.print(char(127));
+    lcd.print(char(126));
     lcd.print("SET");
 
     lcd.setCursor(0, 1);
@@ -907,6 +919,7 @@ byte goccia[8] = //icon for water droplet
                 ok = 1;
     } while(!ok);  
     RTC.adjust(DateTime(year, month, day, hour, min, 0));
+    start_menu();
   }
 
   /************************************************************
@@ -1080,6 +1093,7 @@ byte goccia[8] = //icon for water droplet
     EEPROM.write(eelocate++, h2); // H2  
     EEPROM.write(eelocate++, m2); // M2  
     EEPROM.write(eelocate++, power); // P1  
+    start_menu();
   }
 
   /*********************************************************
@@ -1105,11 +1119,7 @@ byte goccia[8] = //icon for water droplet
   {  
     // Prints RTC Time on RTC
     now = RTC.now();
-    // clean up the screen before printing
-    lcd.clear();
-    // set the cursor to column 0, line 0     
     lcd.setCursor(0, 0);
-    // print date
     print2dec(now.day());
     lcd.print('/');
     print2dec(now.month());
@@ -1119,8 +1129,8 @@ byte goccia[8] = //icon for water droplet
     print2dec(now.hour());
     lcd.print(':');
     print2dec(now.minute());
-    lcd.print(':');
-    print2dec(now.second());
+    //lcd.print(':');
+    //print2dec(now.second());
     // Prints statuses
     for(byte i = 0; i < NBSETS; i++) {
       display_out(i);
@@ -1146,6 +1156,7 @@ byte goccia[8] = //icon for water droplet
     lcd.print(" ");
     lcd.print(humidity);
     lcd.print("%");
+    lcd.print(" ");
   }
 
   /**********************************************************
@@ -1177,10 +1188,4 @@ byte goccia[8] = //icon for water droplet
     }
     lcd.print(nb);
   }
-
-
-
-
-
-
 
