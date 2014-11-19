@@ -96,6 +96,8 @@ byte goccia[8] = //icon for water droplet
     
   // pin dht11
   const int sensorPin = A0;
+  int correzioneT = -1;
+  int correzioneU  = 9;
   // define led
   const int ledVentola = 2;
   const int ledSerpentina = 3;
@@ -527,7 +529,7 @@ byte goccia[8] = //icon for water droplet
       } else if (out_m[li] == AUTO) {
         // programma 1 temperatura per ventola
         if (li < 1) {
-          int temperature  = dht.getTemperature();
+          int temperature  = dht.getTemperature() + correzioneT;
           if (ti[0].power < temperature) {
             unsigned long oraInSecondi = now.hour() * 3600L;
             unsigned long minutiInSecondi = now.minute() * 60L;
@@ -565,7 +567,7 @@ byte goccia[8] = //icon for water droplet
           }
         // programma 2   temperatura per serpentina   
        } else if (li < 2) {
-          int temperature  = dht.getTemperature();
+          int temperature  = dht.getTemperature() + correzioneT;
           if (ti[0].power > temperature) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
@@ -603,7 +605,7 @@ byte goccia[8] = //icon for water droplet
         } 
         // programma 3 umidità     
        } else if (li < 3) {
-        int humidity  = dht.getHumidity();
+        int humidity  = dht.getHumidity() + correzioneU;
         if (ti[1].power > humidity) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
@@ -1144,8 +1146,8 @@ byte goccia[8] = //icon for water droplet
   void display_sensor()
   {
     lcd.setCursor(0,1);
-    int temperature = dht.getTemperature();
-    int humidity = dht.getHumidity();
+    int temperature = dht.getTemperature()+correzioneT;
+    int humidity = dht.getHumidity()+correzioneU;
 
     lcd.print((char)3);
     lcd.print(" ");
