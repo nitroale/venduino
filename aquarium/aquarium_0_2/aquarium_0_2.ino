@@ -354,6 +354,8 @@ byte goccia[8] = //icon for water droplet
      } 
      // small delay
      delay(50);
+
+     luce();
   }
 
   /********************************************************************************************************
@@ -463,6 +465,7 @@ byte goccia[8] = //icon for water droplet
     if (blast != bstate) {
       // state has changed
       if(bstate >=1 && bstate <= 5) {
+        lcd.backlight();
         Serial.print("BUTTON: "); Serial.println(bstate);  
         return(bstate);
       }
@@ -1191,3 +1194,10 @@ byte goccia[8] = //icon for water droplet
     lcd.print(nb);
   }
 
+void luce() {
+  int previousmillis = 0;
+  if (millis()-previousmillis > 60000) {
+    lcd.setBacklight(0);
+    previousmillis = millis();
+  }
+}
