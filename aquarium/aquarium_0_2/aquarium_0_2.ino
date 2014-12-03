@@ -32,7 +32,10 @@
   #include <RTClib.h> // From: https://github.com/adafruit/RTClib.git 573581794b73dc70bccc659df9d54a9f599f4260
   #include <EEPROM.h> // Fro read and write EEPROM
   #include <DHT.h>
-  DHT dht;
+  //DHT dht;
+  #define DHTPIN A0     // what pin we're connected to
+  #define DHTTYPE DHT11   // DHT 11 
+  DHT dht(DHTPIN, DHTTYPE);
  // #include <LiquidCrystal.h>
   // include le note musicali
    //#include "pitches.h"
@@ -221,8 +224,9 @@ byte goccia[8] = //icon for water droplet
     Serial.begin(57600);
     Serial.println("Welcome to Madrenatura");
     // DHT setup 
-    dht.setup(A0);                          
-    delay(dht.getMinimumSamplingPeriod());  
+    //dht.setup(A0);   
+    dht.begin();                       
+    //delay(dht.readMinimumSamplingPeriod());  
     pinMode(sensorPin, INPUT);
     
     // Configures RTC
@@ -354,8 +358,6 @@ byte goccia[8] = //icon for water droplet
      } 
      // small delay
      delay(50);
-
-     luce();
   }
 
   /********************************************************************************************************
@@ -465,7 +467,6 @@ byte goccia[8] = //icon for water droplet
     if (blast != bstate) {
       // state has changed
       if(bstate >=1 && bstate <= 5) {
-        lcd.backlight();
         Serial.print("BUTTON: "); Serial.println(bstate);  
         return(bstate);
       }
@@ -532,7 +533,7 @@ byte goccia[8] = //icon for water droplet
       } else if (out_m[li] == AUTO) {
         // programma 1 temperatura per ventola
         if (li < 1) {
-          int temperature  = dht.getTemperature() + correzioneT;
+          int temperature  = dht.readTemperature() + correzioneT;
           if (ti[0].power < temperature) {
             unsigned long oraInSecondi = now.hour() * 3600L;
             unsigned long minutiInSecondi = now.minute() * 60L;
@@ -570,7 +571,7 @@ byte goccia[8] = //icon for water droplet
           }
         // programma 2   temperatura per serpentina   
        } else if (li < 2) {
-          int temperature  = dht.getTemperature() + correzioneT;
+          int temperature  = dht.readTemperature() + correzioneT;
           if (ti[0].power > temperature) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
@@ -608,7 +609,7 @@ byte goccia[8] = //icon for water droplet
         } 
         // programma 3 umidità     
        } else if (li < 3) {
-        int humidity  = dht.getHumidity() + correzioneU;
+        int humidity  = dht.readHumidity() + correzioneU;
         if (ti[1].power > humidity) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
@@ -1149,8 +1150,8 @@ byte goccia[8] = //icon for water droplet
   void display_sensor()
   {
     lcd.setCursor(0,1);
-    int temperature = dht.getTemperature()+correzioneT;
-    int humidity = dht.getHumidity()+correzioneU;
+    int temperature = dht.readTemperature()+correzioneT;
+    int humidity = dht.readHumidity()+correzioneU;
 
     lcd.print((char)3);
     lcd.print(" ");
@@ -1194,10 +1195,3 @@ byte goccia[8] = //icon for water droplet
     lcd.print(nb);
   }
 
-void luce() {
-  int previousmillis = 0;
-  if (millis()-previousmillis > 60000) {
-    lcd.setBacklight(0);
-    previousmillis = millis();
-  }
-}
