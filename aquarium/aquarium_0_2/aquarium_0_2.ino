@@ -158,14 +158,14 @@ byte goccia[8] = //icon for water droplet
 
   // menu of status
   const int menumin = 0;
-  const int menumax = 4;
+  const int menumax = 3;
 
   char* menu_entry[] = {
     "1. Temperatura ",
     "2. Umidita'    ",
     "3. Luci        ",
     "4. Set Data/Ora",
-    "5. notte       "
+    //"5. notte       "
     //"6. Menu vuoto 6 "
   };
 
