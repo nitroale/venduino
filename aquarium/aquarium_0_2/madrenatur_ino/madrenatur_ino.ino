@@ -1248,3 +1248,4 @@ int noteDurations[] = {
     }
     lcd.print(nb);
   }
+
