@@ -516,7 +516,7 @@ int noteDurations[] = {
   void calculations()
   {
     int h, m;
-
+    boolean test = true;
     // read the date
     now = RTC.now();
     h = now.hour();
@@ -557,7 +557,7 @@ int noteDurations[] = {
         // programma 1 temperatura per ventola
         if (li < 1) {
 
-          if (ti[0].power < temperature) {
+          if (test == true) {
             unsigned long oraInSecondi = now.hour() * 3600L;
             unsigned long minutiInSecondi = now.minute() * 60L;
             long oraInizio = ti[0].h1;
@@ -571,8 +571,9 @@ int noteDurations[] = {
             secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
             secondiFine = (oraFine * 3600 + minutiFine * 60);
 
-            if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
-              if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
+            /*if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+              Serial.println("giorno");
+              if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine) {
                 out_s=ON;
                 digitalWrite(ledVentola,HIGH);
               } else {
@@ -580,6 +581,7 @@ int noteDurations[] = {
                 digitalWrite(ledVentola,LOW);
               }
             } else {                  // caso 18:00 8:00
+
               if (secondiInizio < secondiAttuali || secondiAttuali < secondiFine) {
                 out_s=ON;
                 digitalWrite(ledVentola,HIGH);
@@ -587,16 +589,36 @@ int noteDurations[] = {
                 out_s=OFF;
                 digitalWrite(ledVentola,LOW);
               }
-            }
+            }*/
 
+            if (secondiInizio < secondiFine) {  // giorno
+                if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power < temperature)){
+                  Serial.println("1");
+                  out_s=ON;
+                  digitalWrite(ledVentola,HIGH);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power > temperature)){
+                  Serial.println("2");
+                  out_s=OFF;
+                  digitalWrite(ledVentola,LOW);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN < temperature)) {
+                    Serial.println("3");
+                    out_s=ON;
+                    digitalWrite(ledVentola,HIGH);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN > temperature)){
+                    Serial.println("4");
+                    out_s=OFF;
+                    digitalWrite(ledVentola,LOW);
+                }
+            }
           } else {
+            Serial.println("Cazzo");
             out_s = OFF;
             digitalWrite(ledVentola,LOW);
           }
         // programma 2   temperatura per serpentina
        } else if (li < 2) {
 
-          if (ti[0].power > temperature) {
+          if (test == true) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
            long oraInizio = ti[0].h1;
@@ -610,7 +632,7 @@ int noteDurations[] = {
            secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
            secondiFine = (oraFine * 3600 + minutiFine * 60);
 
-          if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+          /*if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
             if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
@@ -626,7 +648,26 @@ int noteDurations[] = {
               out_s=OFF;
               digitalWrite(ledSerpentina,LOW);
             }
-          }
+          }*/
+            if (secondiInizio < secondiFine) {  // giorno
+                if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power > temperature)){
+                  Serial.println("1");
+                  out_s=ON;
+                  digitalWrite(ledSerpentina,HIGH);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power < temperature)){
+                  Serial.println("2");
+                  out_s=OFF;
+                  digitalWrite(ledSerpentina,LOW);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN > temperature)) {
+                    Serial.println("3");
+                    out_s=ON;
+                    digitalWrite(ledSerpentina,HIGH);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN < temperature)){
+                    Serial.println("4");
+                    out_s=OFF;
+                    digitalWrite(ledSerpentina,LOW);
+                }
+            }
 
         } else {
             out_s = OFF;
@@ -635,7 +676,7 @@ int noteDurations[] = {
         // programma 3 umidità
        } else if (li < 3) {
 
-        if (ti[1].power > humidity) {
+        if (test == true) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
            long oraInizio = ti[1].h1;
@@ -649,7 +690,7 @@ int noteDurations[] = {
            secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
            secondiFine = (oraFine * 3600 + minutiFine * 60);
 
-          if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
+          /*if (secondiInizio < secondiFine) { // caso normale 8:00 18:00
             if (secondiInizio < secondiAttuali && secondiAttuali < secondiFine ) {
               out_s=ON;
               digitalWrite(ledUmidita,HIGH);
@@ -665,7 +706,26 @@ int noteDurations[] = {
               out_s=OFF;
               digitalWrite(ledUmidita,LOW);
             }
-          }
+          }*/
+            if (secondiInizio < secondiFine) {  // giorno
+                if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[1].power > humidity)){
+                  Serial.println("1");
+                  out_s=ON;
+                  digitalWrite(ledUmidita,HIGH);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[1].power < humidity)){
+                  Serial.println("2");
+                  out_s=OFF;
+                  digitalWrite(ledUmidita,LOW);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[1].powerN > humidity)) {
+                    Serial.println("3");
+                    out_s=ON;
+                    digitalWrite(ledUmidita,HIGH);
+                } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[1].powerN < humidity)){
+                    Serial.println("4");
+                    out_s=OFF;
+                    digitalWrite(ledUmidita,LOW);
+                }
+            }
 
         } else {
           out_s = OFF;
@@ -780,14 +840,14 @@ int noteDurations[] = {
          set_function(2);
          break;
        case 2:
-         set_function(3, 0);
+         set_function(3, 0, 0);
          break;
        case 3:
          set_time();
          break;
-       case 4:
+       /*case 4:
          set_function(4);
-         break;
+         break;*/
     }
   }
 
@@ -1057,6 +1117,12 @@ int noteDurations[] = {
                 case 13:
                   pos = 12;
                   break;
+                 case 16:
+                  pos = 13;
+                  break;
+                case 17:
+                  pos = 16;
+                  break;
             }
             break;
           case BT_RIGHT:
@@ -1266,5 +1332,6 @@ int noteDurations[] = {
     }
     lcd.print(nb);
   }
+
 
 
