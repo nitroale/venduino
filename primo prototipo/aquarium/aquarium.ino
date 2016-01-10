@@ -31,7 +31,7 @@
   #include <Wire.h> // include the I2C library
   #include <RTClib.h> // From: https://github.com/adafruit/RTClib.git 573581794b73dc70bccc659df9d54a9f599f4260
   #include <EEPROM.h> // Fro read and write EEPROM
-  #include <DataCoder.h>
+  //#include <DataCoder.h>
   #include <VirtualWire.h>
   //const int rx_pin = A0;
   #include <DHT.h>
@@ -48,8 +48,8 @@
 #include <LiquidCrystal_I2C.h>
 
 
-float temperature;
-float humidity;
+//float temperature;
+//float humidity;
 
 // used for RTC
   const int dayspermonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
@@ -219,7 +219,7 @@ int noteDurations[] = {
       // following line sets the RTC to the date & time this sketch was compiled
       RTC.adjust(DateTime(__DATE__, __TIME__));
     }
-    SetupRFDataRxnLink(rx_pin, baudRate);
+    //SetupRFDataRxnLink(rx_pin, baudRate);
     // If you want to set the aref to something other than 5v
     //analogReference(EXTERNAL);
 
@@ -358,7 +358,7 @@ int noteDurations[] = {
         switch_out(3);
         break;
      }
-    receive();
+    //receive();
      // small delay
      delay(50);
   }
@@ -520,11 +520,27 @@ int noteDurations[] = {
   void calculations()
   {
     int h, m;
-    boolean test = true;
+
     // read the date
     now = RTC.now();
     h = now.hour();
     m = now.minute();
+    float temperature  = dht.readTemperature();
+    float humidity = dht.readTemperature();
+    float tmin = dht.readTemperature() - 0.2;
+    float tmax = dht.readTemperature() + 0.2;
+    float timp = ti[0].power;
+    boolean test = (tmin < timp && timp < tmax);
+    Serial.print("Tmin: ");
+    Serial.print(tmin);
+    Serial.print("Timp: ");
+    Serial.print(timp);
+    Serial.print("tmax: ");
+    Serial.print(tmax);
+    Serial.print("test: ");
+    Serial.println(test);
+    //boolean test = ((ti[0].power >= (temperature - 0.2)) && ((temperature + 0.2) <= ti[0].power));
+    //Serial.println(((ti[0].power >= (temperature - 0.2)) && ((temperature + 0.2) <= ti[0].power)));
     //receive();
     //temperature = inArray[0];
     //humidity = inArray[1];
@@ -561,7 +577,7 @@ int noteDurations[] = {
         // programma 1 temperatura per ventola
         if (li < 1) {
 
-          if (test == true) {
+          if (test == false) {
             unsigned long oraInSecondi = now.hour() * 3600L;
             unsigned long minutiInSecondi = now.minute() * 60L;
             long oraInizio = ti[0].h1;
@@ -596,34 +612,34 @@ int noteDurations[] = {
             }*/
 
             if (secondiInizio < secondiFine) {  // giorno
-                int temperature  = dht.readTemperature();
+                float temperature  = dht.readTemperature();
                 if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power < temperature)){
-                  Serial.println("1");
+                  Serial.println("Ventola accesa giorno");
                   out_s=ON;
                   digitalWrite(ledVentola,HIGH);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power > temperature)){
-                  Serial.println("2");
+                  Serial.println("Ventola spenta giorno");
                   out_s=OFF;
                   digitalWrite(ledVentola,LOW);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN < temperature)) {
-                    Serial.println("3");
+                    Serial.println("Ventola accesa NOTTE");
                     out_s=ON;
                     digitalWrite(ledVentola,HIGH);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN > temperature)){
-                    Serial.println("4");
+                    Serial.println("Ventola spenta NOTTE");
                     out_s=OFF;
                     digitalWrite(ledVentola,LOW);
                 }
             }
           } else {
-            Serial.println("Cazzo");
+            Serial.println("------VENTOLA SPENTA MANUALE-------");
             out_s = OFF;
             digitalWrite(ledVentola,LOW);
           }
         // programma 2   temperatura per serpentina
        } else if (li < 2) {
 
-          if (test == true) {
+          if (test == false) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
            long oraInizio = ti[0].h1;
@@ -655,21 +671,21 @@ int noteDurations[] = {
             }
           }*/
             if (secondiInizio < secondiFine) {  // giorno
-              int temperature  = dht.readTemperature();
+              float temperature  = dht.readTemperature();
                 if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power > temperature)){
-                  Serial.println("1");
+                  Serial.println("Serpentina accesa giorno");
                   out_s=ON;
                   digitalWrite(ledSerpentina,HIGH);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[0].power < temperature)){
-                  Serial.println("2");
+                  Serial.println("Serpentina spenta giorno");
                   out_s=OFF;
                   digitalWrite(ledSerpentina,LOW);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN > temperature)) {
-                    Serial.println("3");
+                    Serial.println("Serpentina accesa NOTTE");
                     out_s=ON;
                     digitalWrite(ledSerpentina,HIGH);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[0].powerN < temperature)){
-                    Serial.println("4");
+                    Serial.println("Serpentina spenta NOTTE");
                     out_s=OFF;
                     digitalWrite(ledSerpentina,LOW);
                 }
@@ -678,6 +694,7 @@ int noteDurations[] = {
         } else {
             out_s = OFF;
             digitalWrite(ledSerpentina,LOW);
+            Serial.println("------- SERPENTINA SPENTA MANUALE --------");
         }
         // programma 3 umidità
        } else if (li < 3) {
@@ -716,19 +733,19 @@ int noteDurations[] = {
             if (secondiInizio < secondiFine) {  // giorno
               int humidity  = dht.readHumidity();
                 if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[1].power > humidity)){
-                  Serial.println("1");
+                  Serial.println("Umidita On Giorno");
                   out_s=ON;
                   digitalWrite(ledUmidita,HIGH);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali < secondiFine) && (ti[1].power < humidity)){
-                  Serial.println("2");
+                  Serial.println("umidita Off Giorno");
                   out_s=OFF;
                   digitalWrite(ledUmidita,LOW);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[1].powerN > humidity)) {
-                    Serial.println("3");
+                    Serial.println("umidita ON NOTTE");
                     out_s=ON;
                     digitalWrite(ledUmidita,HIGH);
                 } else if ((secondiInizio < secondiAttuali && secondiAttuali > secondiFine) && (ti[1].powerN < humidity)){
-                    Serial.println("4");
+                    Serial.println("umidita OFF NOTTE");
                     out_s=OFF;
                     digitalWrite(ledUmidita,LOW);
                 }
@@ -737,6 +754,7 @@ int noteDurations[] = {
         } else {
           out_s = OFF;
           digitalWrite(ledUmidita,LOW);
+          Serial.println("------- UMIDITA SPENTA MANUALE --------");
         }
         // programma 4 luci
        } else if (li < 4) {
@@ -1378,6 +1396,8 @@ int noteDurations[] = {
     }
     lcd.print(nb);
   }
+
+
 
 
 
