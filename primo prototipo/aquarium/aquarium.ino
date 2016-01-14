@@ -526,11 +526,12 @@ int noteDurations[] = {
     h = now.hour();
     m = now.minute();
     float temperature  = dht.readTemperature();
-    float humidity = dht.readTemperature();
+    float humidity = dht.readHumidity();
     float tmin = dht.readTemperature() - 0.2;
     float tmax = dht.readTemperature() + 0.2;
     float timp = ti[0].power;
     boolean test = (tmin < timp && timp < tmax);
+
     Serial.print("Tmin: ");
     Serial.print(tmin);
     Serial.print("Timp: ");
@@ -539,6 +540,7 @@ int noteDurations[] = {
     Serial.print(tmax);
     Serial.print("test: ");
     Serial.println(test);
+
     //boolean test = ((ti[0].power >= (temperature - 0.2)) && ((temperature + 0.2) <= ti[0].power));
     //Serial.println(((ti[0].power >= (temperature - 0.2)) && ((temperature + 0.2) <= ti[0].power)));
     //receive();
@@ -699,7 +701,7 @@ int noteDurations[] = {
         // programma 3 umidità
        } else if (li < 3) {
 
-        if (test == true) {
+        if (1 == 1) {
            unsigned long oraInSecondi = now.hour() * 3600L;
            unsigned long minutiInSecondi = now.minute() * 60L;
            long oraInizio = ti[1].h1;
@@ -1396,6 +1398,7 @@ int noteDurations[] = {
     }
     lcd.print(nb);
   }
+
 
 
 
