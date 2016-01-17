@@ -548,7 +548,7 @@ byte goccia[8] = //icon for water droplet
           }
           else if (li < 2){
              // se t impostata è maggiore di quella letta accendi le serpentine
-            if (ti[0].power >= temperatureS){
+            if (ti[0].power > temperatureS){
               Serial.println("Serpentina accesa giorno");
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
@@ -560,7 +560,7 @@ byte goccia[8] = //icon for water droplet
           }
           else if (li < 3){
              // se h impostata è maggiore di quella letta accendi le umidificatore
-            if (ti[1].power >= humidityR){
+            if (ti[1].power > humidityR){
               Serial.println("umidita accesa giorno");
               out_s=ON;
               digitalWrite(ledUmidita,HIGH);
@@ -593,7 +593,7 @@ byte goccia[8] = //icon for water droplet
 
           } else if (li < 2){
              // se t impostata è maggiore di quella letta accendi le serpentine
-            if (ti[0].powerN >= temperatureS){
+            if (ti[0].powerN > temperatureS){
               Serial.println("Serpentina accesa notte");
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
@@ -604,7 +604,7 @@ byte goccia[8] = //icon for water droplet
             }
           } else  if (li < 3){
              // se h impostata è maggiore di quella letta accendi le umidificatore
-            if (ti[1].powerN >= humidityR){
+            if (ti[1].powerN > humidityR){
               Serial.println("umidita accesa notte");
               out_s=ON;
               digitalWrite(ledUmidita,HIGH);
