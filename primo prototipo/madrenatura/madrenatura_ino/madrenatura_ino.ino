@@ -152,7 +152,7 @@ byte goccia[8] = //icon for water droplet
   char* menu_entry[] = {
     "1. Temperatura ",
     "2. Umidita'    ",
-    "3. Luci        ",
+    "3. Giorno Notte",
     "4. Set Data/Ora",
     //"5. notte       "
     //"6. Menu vuoto 6 "
