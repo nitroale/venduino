@@ -1,0 +1,10 @@
+pass: Wb1KU8Rb2hmcDPjrU6zPi9jq
+
+Telecom-71485413
+
+
+MAC: 78:C4:E:1:C9:E2
+Scanning available networks...
+** Scan Networks **
+number of available networks:1
+0) Telecom-71485413	Signal: -74 dBm	Encryption: WPA2
