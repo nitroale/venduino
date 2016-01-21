@@ -478,8 +478,8 @@ byte goccia[8] = //icon for water droplet
     now = RTC.now();
     h = now.hour();
     m = now.minute();
-    int temperatureV = dht.readTemperature();
-    int temperatureS = dht.readTemperature();
+    float temperatureV = dht.readTemperature();
+    float temperatureS = dht.readTemperature();
     int humidityR = dht.readHumidity();
 
 
@@ -535,7 +535,7 @@ byte goccia[8] = //icon for water droplet
           // ventola
           if (li < 1){
             // se t impostata è minore di quella letta accendi le ventole
-            if (ti[0].power < temperatureV){
+            if ((ti[0].power + 0.2) < temperatureV){
               Serial.println("Ventole accesa giorno");
               out_s=ON;
               digitalWrite(ledVentola,HIGH);
@@ -548,7 +548,7 @@ byte goccia[8] = //icon for water droplet
           }
           else if (li < 2){
              // se t impostata è maggiore di quella letta accendi le serpentine
-            if (ti[0].power >= temperatureS){
+            if ((ti[0].power - 0.2) > temperatureS){
               Serial.println("Serpentina accesa giorno");
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
@@ -560,7 +560,7 @@ byte goccia[8] = //icon for water droplet
           }
           else if (li < 3){
              // se h impostata è maggiore di quella letta accendi le umidificatore
-            if (ti[1].power >= humidityR){
+            if (ti[1].power > humidityR){
               Serial.println("umidita accesa giorno");
               out_s=ON;
               digitalWrite(ledUmidita,HIGH);
@@ -581,7 +581,7 @@ byte goccia[8] = //icon for water droplet
         // se è notte 
          if (li < 1){
             // se t impostata è minore di quella letta accendi le ventole
-            if (ti[0].powerN < temperatureV){
+            if ((ti[0].powerN + 0.2) < temperatureV){
               Serial.println("Ventole accesa notte");
               out_s=ON;
               digitalWrite(ledVentola,HIGH);
@@ -593,7 +593,7 @@ byte goccia[8] = //icon for water droplet
 
           } else if (li < 2){
              // se t impostata è maggiore di quella letta accendi le serpentine
-            if (ti[0].powerN >= temperatureS){
+            if ((ti[0].powerN - 0.2) > temperatureS){
               Serial.println("Serpentina accesa notte");
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
