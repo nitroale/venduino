@@ -38,8 +38,10 @@
   #define DHTPIN A0     // what pin we're connected to
   #define DHTTYPE DHT22   // DHT 11
   DHT dht(DHTPIN, DHTTYPE);
-  const int led_pin = 13;
+  //const int led_pin = 13;
   //const int baudRate = 800;
+  // per watchdog
+  //#include <avr/wdt.h>
 
 
  // #include <LiquidCrystal.h>
@@ -282,9 +284,10 @@ byte goccia[8] = //icon for water droplet
     // joystick
     pinMode(Pin_SW, INPUT);      // Inizializzo il pin del pulsante del JOYSTICK
     digitalWrite(Pin_SW,HIGH);   // Setto la resistenza di pull-up
-    
+
     dht.begin();
     lcd.clear();
+    //wdt_enable(WDTO_8S);
   }
 
   /****************************************************************************************************************
@@ -302,6 +305,8 @@ byte goccia[8] = //icon for water droplet
         previousCalculationMillis = currentMillis;
         // does interval calculations
         calculations();
+        //wdt_reset();
+
     }
     if(status == ST_DISPLAY) {
       // only once an interval
@@ -311,6 +316,8 @@ byte goccia[8] = //icon for water droplet
         // display the data on the screen
         display_data();
         display_sensor();
+
+        //wdt_reset();
       }
     }
 
@@ -337,6 +344,7 @@ byte goccia[8] = //icon for water droplet
     //receive();
      // small delay
      delay(50);
+
   }
 
   /********************************************************************************************************
@@ -478,9 +486,10 @@ byte goccia[8] = //icon for water droplet
     now = RTC.now();
     h = now.hour();
     m = now.minute();
-    int temperatureV = dht.readTemperature();
-    int temperatureS = dht.readTemperature();
-    int humidityR = dht.readHumidity();
+    float temperatureV = dht.readTemperature();
+    float temperatureS = dht.readTemperature();
+    float humidityR = dht.readHumidity();
+
 
 
 
@@ -535,7 +544,7 @@ byte goccia[8] = //icon for water droplet
           // ventola
           if (li < 1){
             // se t impostata è minore di quella letta accendi le ventole
-            if (ti[0].power < temperatureV){
+            /*if (ti[0].power < temperatureV){
               Serial.println("Ventole accesa giorno");
               out_s=ON;
               digitalWrite(ledVentola,HIGH);
@@ -543,7 +552,11 @@ byte goccia[8] = //icon for water droplet
               Serial.println("Ventole spenta giorno");
               out_s=OFF;
               digitalWrite(ledVentola,LOW);
-            }
+            }*/
+              // accensione delle ventole sempre durante il giorno
+            Serial.println("Ventole accesa giorno");
+            out_s=ON;
+            digitalWrite(ledVentola,HIGH);
 
           }
           else if (li < 2){
@@ -578,10 +591,10 @@ byte goccia[8] = //icon for water droplet
           }
 
         } else {
-        // se è notte 
+        // se è notte
          if (li < 1){
             // se t impostata è minore di quella letta accendi le ventole
-            if (ti[0].powerN < temperatureV){
+            if (ti[0].powerN < temperatureV || ti[1].powerN < humidityR){
               Serial.println("Ventole accesa notte");
               out_s=ON;
               digitalWrite(ledVentola,HIGH);
@@ -961,7 +974,7 @@ byte goccia[8] = //icon for water droplet
       lcd.setCursor(0, 0);
       lcd.print("Alba  Tramonto");
       // solo riga di menu per alba tramonto
-      
+
       lcd.setCursor(0, 1);
       for(i = 0; i < 11; i++)
         lcd.print(val[i]);
@@ -1054,7 +1067,7 @@ byte goccia[8] = //icon for water droplet
                     pos = 10;
                     riga= 1;
                     break;*/
-                  default: 
+                  default:
                     // if nothing else matches, do the default
                     // default is optional
                     pos = 12;
@@ -1191,7 +1204,7 @@ byte goccia[8] = //icon for water droplet
             break;
           }
          }
-        
+
         if(val[pos] < '0')
           val[pos] = '9';
         else if (val[pos] > '9')
