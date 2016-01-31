@@ -50,6 +50,8 @@
 #include <LiquidCrystal_I2C.h>
 
 
+
+
 //float temperature;
 //float humidity;
 
@@ -149,14 +151,15 @@ byte goccia[8] = //icon for water droplet
 
   // menu of status
   const int menumin = 0;
-  const int menumax = 3;
+  const int menumax = 2;
 
   char* menu_entry[] = {
-    "1. Temperatura ",
-    "2. Umidita'    ",
-    "3. Giorno Notte",
-    "4. Set Data/Ora",
-    //"5. notte       "
+    //"1. Temperatura ",
+    //"2. Umidita'    ",
+    //"3. Giorno Notte",
+    "1. Set Data/Ora",
+    "2. Vegetativa  ",
+    "3. Fioritura  "
     //"6. Menu vuoto 6 "
   };
 
@@ -203,7 +206,7 @@ byte goccia[8] = //icon for water droplet
   {
     lcd.backlight();
     Serial.begin(9600);
-    Serial.println("Welcome to Madrenatura");
+    Serial.println("Welcome to Madrenatura 0.1");
 
     // Configures RTC
     Wire.begin(); // initalise I2C interface
@@ -246,6 +249,7 @@ byte goccia[8] = //icon for water droplet
       read_eeprom(1);
       read_eeprom(2);
       read_eeprom(3);
+      read_eeprom(50);
     }
 
     // setout leds
@@ -344,7 +348,7 @@ byte goccia[8] = //icon for water droplet
     //receive();
      // small delay
      delay(50);
-
+     //Serial.println(cambioOra);
   }
 
   /********************************************************************************************************
@@ -486,27 +490,25 @@ byte goccia[8] = //icon for water droplet
     now = RTC.now();
     h = now.hour();
     m = now.minute();
-    float temperatureV = dht.readTemperature();
-    float temperatureS = dht.readTemperature();
-    float humidityR = dht.readHumidity();
+
+    float temperaturaR = dht.readTemperature();
+    float umiditaR = dht.readHumidity();
+    //valori preimpostati
+    float temperaturaGiorno = 24;
+    float temperaturaNotte = 18;
 
 
+    // calcolo durata programma
 
-
+    int numeroProgramma = EEPROM.read(50);
     unsigned long oraInSecondi = now.hour() * 3600L;
     unsigned long minutiInSecondi = now.minute() * 60L;
-    long oraInizio = ti[2].h1;
-    long minutiInizio = ti[2].m1;
-    long oraFine = ti[2].h2;
-    long minutiFine = ti[2].m2;
-    unsigned long secondiInizio = 0;
-    unsigned long secondiFine = 0;
-    unsigned long secondiAttuali = 0;
-    secondiAttuali = oraInSecondi + minutiInSecondi;
-    secondiInizio = (oraInizio * 3600 + minutiInizio * 60);
-    secondiFine = (oraFine * 3600 + minutiFine * 60);
-    boolean giorno = ((secondiAttuali < secondiFine) && (secondiInizio < secondiAttuali));
-
+    unsigned long secondiAttuali = oraInSecondi + minutiInSecondi;
+    unsigned long secondiInizio = (numeroProgramma == 1 ? 64800 : 43200);
+    float umiditaGiorno = (numeroProgramma == 1 ? 60 : 40);
+    float umiditaNotte = (numeroProgramma == 1 ? 60 : 40);
+    boolean giorno = (secondiAttuali < secondiInizio);
+    Serial.println(numeroProgramma);
 
 
     for(int li = 0; li < 4; li++) {
@@ -561,7 +563,10 @@ byte goccia[8] = //icon for water droplet
           }
           else if (li < 2){
              // se t impostata è maggiore di quella letta accendi le serpentine
-            if (ti[0].power > temperatureS){
+            //if (ti[0].power > temperatureS){
+
+            //inserisco controllo su valori preimpostati
+            if (temperaturaR < temperaturaGiorno) {
               Serial.println("Serpentina accesa giorno");
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
@@ -573,7 +578,10 @@ byte goccia[8] = //icon for water droplet
           }
           else if (li < 3){
              // se h impostata è maggiore di quella letta accendi le umidificatore
-            if (ti[1].power > humidityR){
+            //if (ti[1].power > humidityR){
+
+            //inserisco controllo su valori preimpostati
+            if (umiditaGiorno > umiditaR) {
               Serial.println("umidita accesa giorno");
               out_s=ON;
               digitalWrite(ledUmidita,HIGH);
@@ -594,7 +602,9 @@ byte goccia[8] = //icon for water droplet
         // se è notte
          if (li < 1){
             // se t impostata è minore di quella letta accendi le ventole
-            if (ti[0].powerN < temperatureV || ti[1].powerN < humidityR){
+            //if (ti[0].powerN < temperatureV || ti[1].powerN < humidityR){
+          //inserisco controllo su valori preimpostati
+            /*if (temperaturaNotte > temperaturaR || umiditaNotte > umiditaR) {
               Serial.println("Ventole accesa notte");
               out_s=ON;
               digitalWrite(ledVentola,HIGH);
@@ -602,11 +612,21 @@ byte goccia[8] = //icon for water droplet
               Serial.println("Ventole spenta notte");
               out_s=OFF;
               digitalWrite(ledVentola,LOW);
-            }
+            }*/
+              if (now.minute() < 15) {
+                out_s=ON;
+                digitalWrite(ledVentola,HIGH);
+              }else {
+                out_s=OFF;
+                digitalWrite(ledVentola,LOW);
+              }
 
           } else if (li < 2){
              // se t impostata è maggiore di quella letta accendi le serpentine
-            if (ti[0].powerN > temperatureS){
+            //if (ti[0].powerN > temperatureS){
+
+            //inserisco controllo su valori preimpostati
+            if (temperaturaNotte > temperaturaR) {
               Serial.println("Serpentina accesa notte");
               out_s=ON;
               digitalWrite(ledSerpentina,HIGH);
@@ -617,7 +637,7 @@ byte goccia[8] = //icon for water droplet
             }
           } else  if (li < 3){
              // se h impostata è maggiore di quella letta accendi le umidificatore
-            if (ti[1].powerN > humidityR){
+            if (umiditaNotte > umiditaR){
               Serial.println("umidita accesa notte");
               out_s=ON;
               digitalWrite(ledUmidita,HIGH);
@@ -692,9 +712,10 @@ byte goccia[8] = //icon for water droplet
   void start_menu() {
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Menu:  ");
+    lcd.print("Tipo crescita: ");
     lcd.print((char)1);
     lcd.print((char)2);
+    lcd.setCursor(16, 3);
     lcd.print(' ');
     lcd.print((char)126);
     lcd.print("OK");
@@ -705,7 +726,7 @@ byte goccia[8] = //icon for water droplet
     Serial.println(en);
 
     switch(en) {
-       case 0:
+       /*case 0:
         set_function(1);
          break;
        case 1:
@@ -713,19 +734,63 @@ byte goccia[8] = //icon for water droplet
          break;
        case 2:
          set_function(3,0,0);
-         break;
-       case 3:
+         break;*/
+       case 0:
          set_time();
          break;
-       /*case 4:
-         set_function(4);
-         break;*/
+       case 1:
+         vegetativa();
+         break;
+        case 2:
+         fioritura();
+         break;
     }
   }
 
   /***************************************************
   **            Menu entry to setup the time        **
   ***************************************************/
+
+  void vegetativa(){
+
+    int pressed_bt = -1;
+
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Luce 18/24");
+    lcd.setCursor(0,1);
+    lcd.print("Temperatura 24 18");
+    lcd.setCursor(0,2);
+    lcd.print("Umidita 60 60");
+    lcd.setCursor(0,3);
+    lcd.print("Premi per avviare");
+
+    while((pressed_bt = read_button_blocking()) != BT_SET);
+    RTC.adjust(DateTime(1, 1, 1, 0, 0, 0));
+    int programma = 1;
+    EEPROM.write(50, programma);
+    start_menu();
+  }
+
+  void fioritura(){
+    int pressed_bt = -1;
+
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Luce 12/12");
+    lcd.setCursor(0,1);
+    lcd.print("Temperatura 24 18");
+    lcd.setCursor(0,2);
+    lcd.print("Umidita 40 40");
+    lcd.setCursor(0,3);
+    lcd.print("Premi per avviare");
+
+    while((pressed_bt = read_button_blocking()) != BT_SET);
+    RTC.adjust(DateTime(1, 1, 1, 0, 0, 0));
+    int programma = 2;
+    EEPROM.write(50, programma);
+    start_menu();
+  }
 
   void set_time()
   {
@@ -742,6 +807,7 @@ byte goccia[8] = //icon for water droplet
     ** 0         1
     ** DD/MM/YYYY HH:MM
     */
+
 
     now = RTC.now();
     val[0] = now.day()/10+'0';
@@ -1267,6 +1333,7 @@ byte goccia[8] = //icon for water droplet
     ti[place].m2 = EEPROM.read(eelocate++);
     ti[place].power = EEPROM.read(eelocate++);
     ti[place].powerN = EEPROM.read(eelocate++);
+    //cambioOra = EEPROM.read(50);
   }
 
   /************************************************************
@@ -1275,8 +1342,27 @@ byte goccia[8] = //icon for water droplet
 
   void display_data()
   {
+    int numeroProgramma = EEPROM.read(50);
+    lcd.setCursor(0,0);
+    if (numeroProgramma == 1){
+      lcd.print("Vegetativa ");
+      now = RTC.now();
+      lcd.print(' ');
+      print2dec(now.hour());
+      lcd.print(':');
+      print2dec(now.minute());
+    } else {
+      lcd.print("Fioritura ");
+      now = RTC.now();
+      lcd.print(' ');
+      print2dec(now.hour());
+      lcd.print(':');
+      print2dec(now.minute());
+    } for(byte i = 0; i < NBSETS; i++) {
+      display_out(i);
+    }
     // Prints RTC Time on RTC
-    now = RTC.now();
+    /*now = RTC.now();
     lcd.setCursor(0, 0);
     print2dec(now.day());
     lcd.print('/');
@@ -1292,7 +1378,7 @@ byte goccia[8] = //icon for water droplet
     // Prints statuses
     for(byte i = 0; i < NBSETS; i++) {
       display_out(i);
-    }
+    }*/
   }
 
   /********************************************************
