@@ -478,9 +478,9 @@ byte goccia[8] = //icon for water droplet
     now = RTC.now();
     h = now.hour();
     m = now.minute();
-    int temperatureV = dht.readTemperature();
-    int temperatureS = dht.readTemperature();
-    int humidityR = dht.readHumidity();
+    float temperatureV = dht.readTemperature();
+    float temperatureS = dht.readTemperature();
+    float humidityR = dht.readHumidity();
 
 
 
