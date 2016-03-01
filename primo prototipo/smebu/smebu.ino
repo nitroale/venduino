@@ -334,7 +334,7 @@ byte goccia[8] = //icon for water droplet
         chg_status();
         do_menu();
         break;
-      case BT_LEFT:
+      /*case BT_LEFT:
         switch_out(0);
         break;
       case BT_RIGHT:
@@ -345,7 +345,7 @@ byte goccia[8] = //icon for water droplet
         break;
      case BT_DOWN:
         switch_out(3);
-        break;
+        break;*/
      }
     //receive();
      // small delay
@@ -374,7 +374,7 @@ byte goccia[8] = //icon for water droplet
 
   /***************************************************************
   **                   switch out put mode                      **
-  ***************************************************************/
+  ***************************************************************
 
   void switch_out(byte n)
   {
@@ -389,7 +389,7 @@ byte goccia[8] = //icon for water droplet
         out_m[n] = ON;
         break;
     }
-    display_out(n);
+   // display_out(n);
   }
 
   /******************************************************************
@@ -1350,8 +1350,8 @@ byte goccia[8] = //icon for water droplet
   **      this displays the data on the screen               **
   ************************************************************/
   void display_day() {
-    lcd.setCursor(0,2);
-    lcd.print("Giorno ");
+    lcd.setCursor(0,0);
+    lcd.print("Day  ");
     lcd.print(now.unixtime() / 86400L - 11322L);
    }
 
@@ -1359,24 +1359,26 @@ byte goccia[8] = //icon for water droplet
   void display_data()
   {
     int numeroProgramma = EEPROM.read(50);
-    lcd.setCursor(0,0);
+    lcd.setCursor(9,0);
     if (numeroProgramma == 1){
-      lcd.print("Vegetativa ");
+      lcd.print("  VEG ");
       now = RTC.now();
       lcd.print(' ');
       print2dec(now.hour());
       lcd.print(':');
       print2dec(now.minute());
     } else {
-      lcd.print("Fioritura ");
+      lcd.print("  FIO");
       now = RTC.now();
       lcd.print(' ');
       print2dec(now.hour());
       lcd.print(':');
       print2dec(now.minute());
-    } for(byte i = 0; i < NBSETS; i++) {
+    } 
+    // NON VOGLIO VISUALIZZARE I SIMBOLI
+    /*for(byte i = 0; i < NBSETS; i++) {
       display_out(i);
-    }
+    }*/
     // Prints RTC Time on RTC
     /*now = RTC.now();
     lcd.setCursor(0, 0);
@@ -1407,15 +1409,24 @@ byte goccia[8] = //icon for water droplet
         float humidity = dht.readHumidity();
         lcd.setCursor(0,1);
         lcd.print((char)3);
-        lcd.print(" ");
+        lcd.print("  ");
         lcd.print(temperature);
         lcd.print((char)223);
         lcd.print(" ");
+        lcd.print(" CO2   ");
+        lcd.print("700");
+        lcd.setCursor(0,2);
         lcd.print((char)4);
-        lcd.print(" ");
+        lcd.print("  ");
         lcd.print(humidity);
         lcd.print("%");
         lcd.print(" ");
+        lcd.print(" PH   ");
+        lcd.print("6.70");
+        lcd.setCursor(0,3);
+        lcd.print("Ut ");
+        lcd.print("37.30%");
+        
       }
 
 
@@ -1423,7 +1434,7 @@ byte goccia[8] = //icon for water droplet
 
   /**********************************************************
   **              display modalità dispositivi             **
-  **********************************************************/
+  **********************************************************
 
   void display_out(byte i)
   {
