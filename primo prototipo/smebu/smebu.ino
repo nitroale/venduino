@@ -1406,6 +1406,7 @@ byte goccia[8] = //icon for water droplet
 
   void display_sensor()
   {
+        int sensorValue = 0;
         float umiditaTerreno;
         float temperature = dht.readTemperature();
         float humidity = dht.readHumidity();
@@ -1428,7 +1429,7 @@ byte goccia[8] = //icon for water droplet
         lcd.print(" PH   ");
         lcd.print("6.70");
         lcd.setCursor(0,3);
-        lcd.print("Ut ");
+        lcd.print("Ut  ");
         lcd.print(umiditaTerreno);
         lcd.print("%  ");
       }
