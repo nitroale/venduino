@@ -118,6 +118,7 @@ byte goccia[8] = //icon for water droplet
   // For buttons
   int bstate = 1024, blast = 1024;  // button state and button last state
 
+  //sensore umidità terreno in A3
   // joystick
   #define THRESHOLD_LOW 350
   #define THRESHOLD_HIGH 650
@@ -229,7 +230,7 @@ byte goccia[8] = //icon for water droplet
     lcd.createChar(4, goccia);
     // Print a message to the LCD.
     lcd.setCursor(0,0);
-    lcd.print("Madrenatura");
+    lcd.print("Smebu 0.1");
     lcd.setCursor(0, 1);
     lcd.print("Made in Italy");
     delay(500);
@@ -1361,7 +1362,7 @@ byte goccia[8] = //icon for water droplet
     int numeroProgramma = EEPROM.read(50);
     lcd.setCursor(9,0);
     if (numeroProgramma == 1){
-      lcd.print("  VEG ");
+      lcd.print("  VEG");
       now = RTC.now();
       lcd.print(' ');
       print2dec(now.hour());
@@ -1374,7 +1375,7 @@ byte goccia[8] = //icon for water droplet
       print2dec(now.hour());
       lcd.print(':');
       print2dec(now.minute());
-    } 
+    }
     // NON VOGLIO VISUALIZZARE I SIMBOLI
     /*for(byte i = 0; i < NBSETS; i++) {
       display_out(i);
@@ -1405,8 +1406,11 @@ byte goccia[8] = //icon for water droplet
 
   void display_sensor()
   {
+        float umiditaTerreno;
         float temperature = dht.readTemperature();
         float humidity = dht.readHumidity();
+        sensorValue = analogRead(3);
+        umiditaTerreno = map (sensorValue, 540, 1023, 100, 0);
         lcd.setCursor(0,1);
         lcd.print((char)3);
         lcd.print("  ");
@@ -1425,8 +1429,8 @@ byte goccia[8] = //icon for water droplet
         lcd.print("6.70");
         lcd.setCursor(0,3);
         lcd.print("Ut ");
-        lcd.print("37.30%");
-        
+        lcd.print(umiditaTerreno);
+        lcd.print("%  ");
       }
 
 
