@@ -31,29 +31,17 @@
   #include <Wire.h> // include the I2C library
   #include <RTClib.h> // From: https://github.com/adafruit/RTClib.git 573581794b73dc70bccc659df9d54a9f599f4260
   #include <EEPROM.h> // Fro read and write EEPROM
-  //#include <DataCoder.h>
   #include <VirtualWire.h>
-  //const int rx_pin = A0;
   #include <DHT.h>
   #define DHTPIN A0     // what pin we're connected to
   #define DHTTYPE DHT22   // DHT 11
   DHT dht(DHTPIN, DHTTYPE);
-  //const int led_pin = 13;
-  //const int baudRate = 800;
   // per watchdog
-  #include <avr/wdt.h>
+  //#include <avr/wdt.h>
+  #include <LiquidCrystal_I2C.h>
+  #include <OneWire.h>
+  #include <DallasTemperature.h>
 
-
- // #include <LiquidCrystal.h>
-  // include le note musicali
-   //#include "pitches.h"
-#include <LiquidCrystal_I2C.h>
-
-
-
-
-//float temperature;
-//float humidity;
 
 // used for RTC
   const int dayspermonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
@@ -202,6 +190,20 @@ byte goccia[8] = //icon for water droplet
   const byte AQ_SIG1 = 45, AQ_SIG2 = 899;
 
 
+
+// Il terminale data del sensore è connesso
+// alla porta 2 di Arduino
+#define ONE_WIRE_BUS 7
+
+// Imposta la comunicazione oneWire per comunicare
+// con un dispositivo compatibile
+OneWire oneWire(ONE_WIRE_BUS);
+
+// Passaggio oneWire reference alla Dallas Temperature.
+DallasTemperature sensors(&oneWire);
+
+
+
   // Initial setup
   void setup()
   {
@@ -292,6 +294,8 @@ byte goccia[8] = //icon for water droplet
 
     dht.begin();
     lcd.clear();
+    // avvio sensore temperatura terreno
+    sensors.begin();
     //wdt_enable(WDTO_8S);
   }
 
@@ -310,7 +314,7 @@ byte goccia[8] = //icon for water droplet
         previousCalculationMillis = currentMillis;
         // does interval calculations
         calculations();
-        wdt_reset();
+        //wdt_reset();
 
     }
     if(status == ST_DISPLAY) {
@@ -324,7 +328,7 @@ byte goccia[8] = //icon for water droplet
         // giorno programma
         display_day();
 
-        wdt_reset();
+        //wdt_reset();
       }
     }
 
@@ -755,14 +759,26 @@ byte goccia[8] = //icon for water droplet
   ***************************************************/
 
   void vegetativa(){
-
+    byte lampadina[8] = { B01110, B10001, B10101, B10101, B11011, B01110, B01110, B01110 };
+    lcd.createChar(5, lampadina);
+    byte termometro[8] = { B00100,  B01010, B01010, B01110, B01110, B11111, B11111, B01110};
+    lcd.createChar(6, termometro);
+    byte goccia[8] = {    B00100,   B00100,    B01010,    B01010,    B10001,    B10001,B10001,B01110,};
+    lcd.createChar(7, goccia);
     int pressed_bt = -1;
 
     lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Luce 18/24");
+    lcd.setCursor(2,0);
+    lcd.print((char)5);
+    lcd.print("       ");
+    lcd.print((char)6);
+    lcd.print("        ");
+    lcd.print((char)7);
+    lcd.print("");
     lcd.setCursor(0,1);
-    lcd.print("Temperatura 24 18");
+    lcd.print(" 18 H");
+    lcd.print("   24°>18°");
+    lcd.print("   60%");
     lcd.setCursor(0,2);
     lcd.print("Umidita 60 60");
     lcd.setCursor(0,3);
@@ -1352,7 +1368,7 @@ byte goccia[8] = //icon for water droplet
   ************************************************************/
   void display_day() {
     lcd.setCursor(0,0);
-    lcd.print("Day  ");
+    lcd.print("Day   ");
     lcd.print(now.unixtime() / 86400L - 11322L);
    }
 
@@ -1406,12 +1422,14 @@ byte goccia[8] = //icon for water droplet
 
   void display_sensor()
   {
-        int sensorValue = 0;
+        int sensoreUmiditaTerreno = 0;
         float umiditaTerreno;
+        sensors.requestTemperatures(); // Invia il comando di lettura delle temperatura
         float temperature = dht.readTemperature();
         float humidity = dht.readHumidity();
-        sensorValue = analogRead(3);
-        umiditaTerreno = map (sensorValue, 540, 1023, 100, 0);
+        sensoreUmiditaTerreno = analogRead(3);
+        umiditaTerreno = map (sensoreUmiditaTerreno, 540, 1023, 100, 0);
+
         lcd.setCursor(0,1);
         lcd.print((char)3);
         lcd.print("  ");
@@ -1432,6 +1450,7 @@ byte goccia[8] = //icon for water droplet
         lcd.print("Ut  ");
         lcd.print(umiditaTerreno);
         lcd.print("%  ");
+        lcd.print (sensors.getTempCByIndex(0));
       }
 
 
